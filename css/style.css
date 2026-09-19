@@ -429,6 +429,15 @@ main.narrow { max-width: 800px; }
 .profiel-header .naam { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
 .profiel-header .email { color: var(--muted); font-size: 14px; }
 .profiel-header .profiel-info { flex: 1; min-width: 0; }
+.profiel-hero {
+  display: flex; align-items: center; gap: 18px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 62%);
+  border: 1px solid rgba(0, 113, 227, .12);
+  border-radius: 16px;
+  padding: 20px;
+}
+.profiel-hero .naam { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.profiel-hero .email { color: var(--muted); font-size: 14px; margin-top: 2px; }
 .badge-rij { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
 /* ---------- Dashboard: statistiek-kaarten ---------- */
@@ -437,6 +446,7 @@ main.narrow { max-width: 800px; }
 .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, .05), 0 14px 30px rgba(0, 0, 0, .08); }
 .stat-card .n { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; }
 .stat-card .l { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.stat-icon { font-size: 22px; line-height: 1; margin-bottom: 10px; }
 /* metrische tegel (matching-panel, aanvraag-samenvatting) */
 .stat-mini { background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 12px; }
 .stat-mini .k { font-size: 12px; color: var(--muted); }

@@ -17,8 +17,8 @@
   <meta property="og:url" content="https://moetnu.nl/dashboard.html">
   <meta property="og:site_name" content="Moetnu">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/fonts.css?v=20260919i">
-  <link rel="stylesheet" href="css/style.css?v=20260919i">
+  <link rel="stylesheet" href="css/fonts.css?v=20260919j">
+  <link rel="stylesheet" href="css/style.css?v=20260919j">
 </head>
 <body data-page="dashboard">
   <header id="header"></header>
@@ -90,9 +90,9 @@
     </div>
   </footer>
 
-  <script src="js/config.js?v=20260919i"></script>
-  <script src="js/db.js?v=20260919i"></script>
-  <script src="js/app.js?v=20260919i"></script>
+  <script src="js/config.js?v=20260919j"></script>
+  <script src="js/db.js?v=20260919j"></script>
+  <script src="js/app.js?v=20260919j"></script>
   <script>
     const STATUS_LABEL = {
       open: "Open", toegewezen: "Toegewezen", gesloten: "Gesloten", voltooid: "Voltooid",
@@ -107,13 +107,13 @@
 
     function renderStats() {
       const s = [
-        ["Diensten", stats.diensten],
-        ["Klussen", stats.klussen],
-        ["Boekingen", stats.boekingen],
-        ["Offertes", stats.offertes],
+        ["🛠️", "Diensten", stats.diensten],
+        ["📋", "Klussen", stats.klussen],
+        ["📅", "Boekingen", stats.boekingen],
+        ["💬", "Offertes", stats.offertes],
       ];
-      document.getElementById("stat-grid").innerHTML = s.map(([l, n]) =>
-        `<div class="stat-card"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+      document.getElementById("stat-grid").innerHTML = s.map(([i, l, n]) =>
+        `<div class="stat-card"><div class="stat-icon">${i}</div><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -129,16 +129,16 @@
 
       // Profiel weergave + edit
       document.getElementById("profiel-weergave").innerHTML = `
-        <div class="profiel-header">
-          <div class="avatar">${esc(initiaal)}</div>
+        <div class="profiel-hero">
+          <div class="avatar avatar-big">${esc(initiaal)}</div>
           <div class="profiel-info">
             <div class="naam">${esc(naam)}</div>
             <div class="email">${esc(currentUser.email || "")}</div>
+            <div class="badge-rij mt-1">
+              <span class="badge badge-cat">${rolLabel}</span>
+              ${geverifieerd ? '<span class="badge badge-verified">✓ Geverifieerd</span>' : '<span class="badge badge-pending">Nog niet geverifieerd</span>'}
+            </div>
           </div>
-        </div>
-        <div class="badge-rij mt-2">
-          <span class="badge badge-cat">${rolLabel}</span>
-          ${geverifieerd ? '<span class="badge badge-verified">✓ Geverifieerd</span>' : ""}
         </div>
         <hr class="rule">
         <div class="form-row">
