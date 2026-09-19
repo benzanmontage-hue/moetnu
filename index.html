@@ -316,7 +316,7 @@
       const services = (await SF.getServices()).slice(0, 8);
       const g = document.getElementById("service-grid");
       g.innerHTML = services.length ? services.map(svc =>
-        `<a class="card" href="diensten/${slugify(svc.titel)}.html">
+        `<a class="card" href="dienst.html?id=${svc.id}">
            <div class="card-body">
              <div class="meta"><span class="badge badge-cat">${esc(cats.find(c=>c.id===svc.category_id)?.naam || "Dienst")}</span><span class="badge badge-regio">📍 ${esc(svc.regio)}</span></div>
              <h3>${esc(svc.titel)}</h3>
