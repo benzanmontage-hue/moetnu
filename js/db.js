@@ -381,6 +381,10 @@
     }
     const s = await getSB();
     const { error } = await s.from("bids").upsert({ job_id: jobId, provider_id: providerId, bedrag, bericht }, { onConflict: "job_id,provider_id" });
+    if (!error) {
+      const { data: j } = await s.from("jobs").select("poster_id, titel").eq("id", jobId).single();
+      if (j) notifyUser(j.poster_id, "Nieuwe offerte op je klus", `<p>Er is een nieuwe offerte van <strong>€${bedrag}</strong> op je klus "${j.titel}".</p><p><a href="https://moetnu.nl/klus.html?id=${jobId}">Bekijk je klus</a></p>`);
+    }
     return { error };
   }
 
@@ -431,6 +435,7 @@
     }
     const s = await getSB();
     const { data, error } = await s.from("bookings").insert(booking).select().single();
+    if (!error) notifyUser(payload.provider_id, "Nieuwe boeking op Moetnu", `<p>Je hebt een nieuwe boeking van <strong>€${booking.totaal}</strong> ontvangen.</p><p><a href="https://moetnu.nl/dashboard.html">Bekijk je dashboard</a></p>`);
     return { data, error };
   }
 
@@ -723,7 +728,24 @@
     }
     const s = await getSB();
     const { data, error } = await s.from("messages").insert(msg).select().single();
+    if (!error) notifyUser(msg.recipient_id, "Nieuw bericht op Moetnu", `<p>Je hebt een nieuw bericht ontvangen.</p><p><a href="https://moetnu.nl/dashboard.html">Bekijk het op Moetnu</a></p>`);
     return { data, error };
+  }
+
+  // ---------------- NOTIFICATIES (e-mail via Resend) ----------------
+  async function notify(to, subject, html) {
+    if (DEMO) return;
+    const s = await getSB();
+    try {
+      await s.functions.invoke("notify", { body: { to, subject, html } });
+    } catch (e) { /* notificatie mag de actie niet blokkeren */ }
+  }
+
+  async function notifyUser(userId, subject, html) {
+    if (DEMO || !userId) return;
+    const s = await getSB();
+    const { data } = await s.from("profiles").select("email").eq("id", userId).single();
+    if (data && data.email) await notify(data.email, subject, html);
   }
 
   async function getMessages(scope) {
