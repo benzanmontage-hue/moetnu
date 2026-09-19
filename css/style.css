@@ -460,15 +460,19 @@ main.narrow { max-width: 800px; }
 #toast.success { background: #247a3d; }
 @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
 
-/* ---------- Footer (licht) ---------- */
+/* ---------- Footer (donkere glasmorphism — matcht de header) ---------- */
 footer {
-  background: var(--surface); color: var(--muted); padding: 28px 0; font-size: 12px; margin-top: 40px;
-  border-top: 1px solid var(--line);
+  background: rgba(22, 22, 23, 0.92);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  color: rgba(255, 255, 255, .8);
+  padding: 28px 0; font-size: 13px; margin-top: 40px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
 }
-footer .container { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-footer a { color: var(--ink-soft); }
-footer a:hover { text-decoration: underline; }
-footer strong { color: var(--ink); font-weight: 600; }
+footer .container { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+footer a { color: rgba(255, 255, 255, .7); }
+footer a:hover { color: #fff; text-decoration: none; }
+footer strong { color: #fff; font-weight: 600; font-size: 16px; letter-spacing: -0.02em; }
 
 /* ---------- Login card ---------- */
 .auth-wrap { max-width: 400px; margin: 48px auto; }
