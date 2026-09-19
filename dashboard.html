@@ -201,7 +201,7 @@
                   ${s.status === "actief"
                     ? `<button class="btn btn-sm btn-ghost" onclick="pauzeerDienst('${s.id}')">Pauzeren</button>`
                     : `<button class="btn btn-sm btn-ghost" onclick="activeerDienst('${s.id}')">Activeren</button>`}
-                  <button class="btn btn-sm btn-ghost" onclick="verwijderDienst('${s.id}')">Verwijderen</button>
+                  <button class="btn btn-sm btn-ghost" onclick="verwijderDienst(event, '${s.id}')">Verwijderen</button>
                 </div>`
               : "";
             return `<div class="list-row">
@@ -233,7 +233,7 @@
           const actions = (j.status === "open" || j.status === "toegewezen")
             ? `<div class="row-actions">
                 ${j.status !== "voltooid" ? `<button class="btn btn-sm btn-ghost" onclick="markeerVoltooid('${j.id}')">Voltooid</button>` : ""}
-                <button class="btn btn-sm btn-ghost" onclick="verwijderKlus('${j.id}')">Verwijderen</button>
+                <button class="btn btn-sm btn-ghost" onclick="verwijderKlus(event, '${j.id}')">Verwijderen</button>
               </div>`
             : "";
           return `<div class="list-row">
@@ -278,20 +278,22 @@
       setTimeout(() => location.reload(), 600);
     }
 
-    async function verwijderDienst(id) {
-      if (!confirm("Deze dienst definitief verwijderen?")) return;
-      const { error } = await SF.deleteService(id);
-      if (error) { toast("Verwijderen mislukt", "error"); return; }
-      toast("Dienst verwijderd", "success");
-      setTimeout(() => location.reload(), 600);
+    async function verwijderDienst(e, id) {
+      bevestig(e, "Zeker verwijderen?", async () => {
+        const { error } = await SF.deleteService(id);
+        if (error) { toast("Verwijderen mislukt", "error"); return; }
+        toast("Dienst verwijderd", "success");
+        setTimeout(() => location.reload(), 600);
+      });
     }
 
-    async function verwijderKlus(id) {
-      if (!confirm("Deze klus definitief verwijderen?")) return;
-      const { error } = await SF.deleteJob(id);
-      if (error) { toast("Verwijderen mislukt", "error"); return; }
-      toast("Klus verwijderd", "success");
-      setTimeout(() => location.reload(), 600);
+    async function verwijderKlus(e, id) {
+      bevestig(e, "Zeker verwijderen?", async () => {
+        const { error } = await SF.deleteJob(id);
+        if (error) { toast("Verwijderen mislukt", "error"); return; }
+        toast("Klus verwijderd", "success");
+        setTimeout(() => location.reload(), 600);
+      });
     }
 
     async function markeerVoltooid(id) {

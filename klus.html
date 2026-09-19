@@ -69,7 +69,7 @@
             const naam = p ? ((p.voornaam||"") + " " + (p.achternaam||"")).trim() : "Aanbieder";
             const isGekozen = b.status === "gekozen";
             const kiesBtn = (isPoster && job.status === "open")
-              ? `<button class="btn btn-sm btn-primary" onclick="kiesAanbieder('${b.provider_id}')">Kies</button>`
+              ? `<button class="btn btn-sm btn-primary" onclick="kiesAanbieder(event, '${b.provider_id}')">Kies</button>`
               : (isGekozen ? '<span class="badge badge-verified">✓ Gekozen</span>' : (b.status === "afgewezen" ? '<span class="badge badge-gesloten">Afgewezen</span>' : ""));
             const chatBtn = isPoster ? `<button class="btn btn-sm btn-ghost" onclick="openChatBid('${b.provider_id}')">Chat</button>` : "";
             return `<div class="list-row">
@@ -96,7 +96,7 @@
               <h2>Beheer je klus</h2>
               <div class="row-actions">
                 ${job.status !== "voltooid" ? `<button class="btn btn-sm btn-ghost" onclick="markeerVoltooid('${job.id}')">Markeer als voltooid</button>` : ""}
-                <button class="btn btn-sm btn-ghost" onclick="verwijderKlus('${job.id}')">Verwijderen</button>
+                <button class="btn btn-sm btn-ghost" onclick="verwijderKlus(event, '${job.id}')">Verwijderen</button>
               </div>
             </div>` : ""}
             <div class="panel mt-3" id="matching-panel" style="display:none">
@@ -197,20 +197,22 @@
       setTimeout(() => location.reload(), 700);
     }
 
-    async function kiesAanbieder(providerId) {
-      if (!confirm("Deze aanbieder kiezen voor je klus? De overige offertes worden afgewezen.")) return;
-      const { error } = await SF.chooseBid(CURRENT_JOB.id, providerId);
-      if (error) { toast(error.message || "Fout bij kiezen", "error"); return; }
-      toast("Aanbieder gekozen!", "success");
-      setTimeout(() => location.reload(), 600);
+    async function kiesAanbieder(e, providerId) {
+      bevestig(e, "Zeker kiezen?", async () => {
+        const { error } = await SF.chooseBid(CURRENT_JOB.id, providerId);
+        if (error) { toast(error.message || "Fout bij kiezen", "error"); return; }
+        toast("Aanbieder gekozen!", "success");
+        setTimeout(() => location.reload(), 600);
+      });
     }
 
-    async function verwijderKlus(id) {
-      if (!confirm("Deze klus definitief verwijderen?")) return;
-      const { error } = await SF.deleteJob(id);
-      if (error) { toast("Verwijderen mislukt", "error"); return; }
-      toast("Klus verwijderd", "success");
-      setTimeout(() => (location.href = "dashboard.html"), 600);
+    async function verwijderKlus(e, id) {
+      bevestig(e, "Zeker verwijderen?", async () => {
+        const { error } = await SF.deleteJob(id);
+        if (error) { toast("Verwijderen mislukt", "error"); return; }
+        toast("Klus verwijderd", "success");
+        setTimeout(() => (location.href = "dashboard.html"), 600);
+      });
     }
 
     async function markeerVoltooid(id) {

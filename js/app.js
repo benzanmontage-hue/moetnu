@@ -35,6 +35,29 @@ const qs = (p) => new URLSearchParams(location.search).get(p);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 function slugify(s) { return String(s ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "item"; }
 
+// ---- Bevestiging (betrouwbaar in webviews, i.p.v. window.confirm) ----
+// Eerste klik: knop verandert in "Zeker?" · tweede klik voert actie uit.
+function bevestig(e, tekst, cb) {
+  const btn = e.currentTarget;
+  if (btn.dataset.bevestigd === "1") {
+    btn.dataset.bevestigd = "";
+    btn.classList.remove("btn-danger");
+    cb();
+    return;
+  }
+  btn.dataset.bevestigd = "1";
+  const orig = btn.textContent;
+  btn.textContent = tekst;
+  btn.classList.add("btn-danger");
+  setTimeout(() => {
+    if (btn.dataset.bevestigd === "1") {
+      btn.dataset.bevestigd = "";
+      btn.textContent = orig;
+      btn.classList.remove("btn-danger");
+    }
+  }, 3000);
+}
+
 // ---- Toast ----
 function toast(msg, type) {
   let t = document.getElementById("toast");
