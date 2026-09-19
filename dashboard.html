@@ -17,8 +17,8 @@
   <meta property="og:url" content="https://moetnu.nl/dashboard.html">
   <meta property="og:site_name" content="Moetnu">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/fonts.css?v=20260919o">
-  <link rel="stylesheet" href="css/style.css?v=20260919o">
+  <link rel="stylesheet" href="css/fonts.css?v=20260919p">
+  <link rel="stylesheet" href="css/style.css?v=20260919p">
 </head>
 <body data-page="dashboard">
   <header id="header"></header>
@@ -90,9 +90,9 @@
     </div>
   </footer>
 
-  <script src="js/config.js?v=20260919o"></script>
-  <script src="js/db.js?v=20260919o"></script>
-  <script src="js/app.js?v=20260919o"></script>
+  <script src="js/config.js?v=20260919p"></script>
+  <script src="js/db.js?v=20260919p"></script>
+  <script src="js/app.js?v=20260919p"></script>
   <script>
     const STATUS_LABEL = {
       open: "Open", toegewezen: "Toegewezen", gesloten: "Gesloten", voltooid: "Voltooid",
@@ -419,25 +419,35 @@
       const av = await SF.getAvailability(currentUser.id);
       const map = {};
       av.forEach(a => map[a.dag] = a);
+      // actieve dagen = dagen met opgeslagen tijd; default Ma-Vr als er nog niets is
+      const actief = av.length ? DAGEN.filter(([dag]) => map[dag]).map(([dag]) => dag) : ["ma","di","wo","do","vr"];
+      const eerste = av.find(a => a.start_tijd) || {};
+      const van = (eerste.start_tijd || "09:00").slice(0, 5);
+      const tot = (eerste.eind_tijd || "17:00").slice(0, 5);
       document.getElementById("beschikbaarheid-weergave").innerHTML = `
-        <div class="avail-grid">
-          ${DAGEN.map(([dag, naam]) => `<div class="avail-row">
-            <span class="avail-dag">${naam}</span>
-            <input type="time" id="av-${dag}-s" value="${(map[dag]?.start_tijd || "").slice(0, 5)}">
-            <span class="avail-sep">–</span>
-            <input type="time" id="av-${dag}-e" value="${(map[dag]?.eind_tijd || "").slice(0, 5)}">
-          </div>`).join("")}
+        <div class="dag-chips">
+          ${DAGEN.map(([dag, naam]) => `<button type="button" class="dag-chip ${actief.includes(dag) ? "on" : ""}" data-dag="${dag}" onclick="toggleDag(this)">${naam}</button>`).join("")}
+        </div>
+        <div class="tijdvenster">
+          <label for="av-van">Van</label>
+          <input type="time" id="av-van" value="${van}">
+          <label for="av-tot">Tot</label>
+          <input type="time" id="av-tot" value="${tot}">
         </div>
         <button class="btn btn-primary mt-2" onclick="saveBeschikbaarheid()">Opslaan</button>`;
     }
 
+    function toggleDag(btn) {
+      btn.classList.toggle("on");
+    }
+
     async function saveBeschikbaarheid() {
+      const van = document.getElementById("av-van").value;
+      const tot = document.getElementById("av-tot").value;
+      if (!van || !tot) { toast("Vul een begin- en eindtijd in", "error"); return; }
       const entries = [];
-      for (const [dag] of DAGEN) {
-        const s = document.getElementById(`av-${dag}-s`).value;
-        const e = document.getElementById(`av-${dag}-e`).value;
-        if (s && e) entries.push({ dag, start_tijd: s, eind_tijd: e });
-      }
+      document.querySelectorAll(".dag-chip.on").forEach(c => entries.push({ dag: c.dataset.dag, start_tijd: van, eind_tijd: tot }));
+      if (!entries.length) { toast("Kies minstens één dag", "error"); return; }
       const { error } = await SF.setAvailability(currentUser.id, entries);
       if (error) { toast(error.message || "Fout bij opslaan", "error"); return; }
       toast("Beschikbaarheid opgeslagen!", "success");
