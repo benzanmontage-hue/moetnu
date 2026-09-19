@@ -24,8 +24,8 @@ window.MOETNU_CONFIG = {
   // ---- Snelheidstiers (spoedtoeslag op de basisprijs) ----
   SPOED_TIERS: {
     plannen: { label: "Plannen",  omschrijving: "Morgen of later", toeslag_pct: 0 },
-    vandaag: { label: "Vandaag",  omschrijving: "Vandaag uitgevoerd", toeslag_pct: 15 },
-    nu:      { label: "NU",       omschrijving: "Binnen 60–120 min", toeslag_pct: 30 },
+    vandaag: { label: "Vandaag",  omschrijving: "Vandaag uitgevoerd", toeslag_pct: 10 },
+    nu:      { label: "NU",       omschrijving: "Binnen 60–120 min", toeslag_pct: 25 },
   },
 
   // ---- Mollie (fase 2) ----
