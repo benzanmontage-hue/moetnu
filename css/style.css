@@ -215,18 +215,25 @@ main.narrow { max-width: 800px; }
   .cat-card { transition: background .15s ease; }
 }
 
-/* ---------- Service / job cards ---------- */
+/* ---------- Service / job cards (2026 Apple-stijl) ---------- */
 .card {
-  background: var(--card); border-radius: var(--radius-lg);
-  overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .18s ease, transform .18s ease;
-  box-shadow: var(--shadow);
+  background: var(--card);
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, .05);
+  overflow: hidden; display: flex; flex-direction: column;
+  transition: transform .3s cubic-bezier(.2, .8, .2, 1), box-shadow .3s cubic-bezier(.2, .8, .2, 1), border-color .3s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 6px 20px rgba(0, 0, 0, .05);
 }
-.card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
-.card-body { padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-.card h3 { font-size: 19px; font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
-.card .desc { color: var(--muted); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .05), 0 20px 44px rgba(0, 0, 0, .11);
+  border-color: rgba(0, 113, 227, .22);
+}
+.card-body { padding: 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.card h3 { font-size: 19px; font-weight: 650; line-height: 1.18; letter-spacing: -0.02em; color: var(--ink); }
+.card .desc { color: var(--muted); font-size: 14px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .card .meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
-.card .price { font-weight: 600; font-size: 18px; color: var(--ink); }
+.card .price { font-weight: 650; font-size: 18px; color: var(--ink); letter-spacing: -0.01em; }
 .card .foot { margin-top: auto; padding-top: 6px; }
 .card-stack { margin-bottom: 12px; }
 
