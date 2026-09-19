@@ -615,18 +615,19 @@
   }
 
   function spoedToeslag(bedrag, tier) {
-    // Geen opgelegde spoedtoeslag meer: de aanbieder bepaalt zelf zijn tarief.
-    // De snelheidstier is een wens van de klant, geen prijsbepaling door het platform.
-    return 0;
+    const t = (C.SPOED_TIERS && C.SPOED_TIERS[tier]) || {};
+    const pct = Number(t.toeslag_pct) || 0;
+    return Math.round(Number(bedrag) * pct) / 100;
   }
 
   function prijsOpbouw(bedrag, tier) {
     const basis = Number(bedrag) || 0;
-    const toeslag = 0;
+    const toeslag = spoedToeslag(basis, tier);
     const kosten = serviceKosten(basis);
     const totaal = Math.round((basis + toeslag + kosten) * 100) / 100;
     const commissie = Math.round(basis * C.COMMISSIE_PERCENT) / 100;
-    return { basis, toeslag, servicekosten: kosten, totaal, commissie, commissie_pct: C.COMMISSIE_PERCENT };
+    const toeslag_pct = ((C.SPOED_TIERS && C.SPOED_TIERS[tier]) || {}).toeslag_pct || 0;
+    return { basis, toeslag, servicekosten: kosten, totaal, commissie, commissie_pct: C.COMMISSIE_PERCENT, toeslag_pct };
   }
 
   // ---------------- AI / CATEGORISATIE ----------------

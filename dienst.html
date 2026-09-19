@@ -17,8 +17,8 @@
   <meta property="og:url" content="https://moetnu.nl/dienst.html">
   <meta property="og:site_name" content="Moetnu">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/fonts.css?v=20260919b">
-  <link rel="stylesheet" href="css/style.css?v=20260919b">
+  <link rel="stylesheet" href="css/fonts.css?v=20260919c">
+  <link rel="stylesheet" href="css/style.css?v=20260919c">
 </head>
 <body data-page="diensten">
   <header id="header"></header>
@@ -34,10 +34,10 @@
     </div>
   </footer>
 
-  <script src="js/config.js?v=20260919b"></script>
-  <script src="js/db.js?v=20260919b"></script>
-  <script src="js/app.js?v=20260919b"></script>
-  <script src="js/chat.js?v=20260919b"></script>
+  <script src="js/config.js?v=20260919c"></script>
+  <script src="js/db.js?v=20260919c"></script>
+  <script src="js/app.js?v=20260919c"></script>
+  <script src="js/chat.js?v=20260919c"></script>
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const id = qs("id");
@@ -158,6 +158,7 @@
       const op = SF.prijsOpbouw(BASE_PRIJS, getTier());
       document.getElementById("prijs-opbouw").innerHTML = `
         <div class="opbouw-row"><span>Basisprijs</span><span>${euro(op.basis)}</span></div>
+        ${op.toeslag ? `<div class="opbouw-row"><span>Spoedtoeslag (${op.toeslag_pct}%)</span><span>+${euro(op.toeslag)}</span></div>` : ""}
         <div class="opbouw-row"><span>Servicekosten</span><span>+${euro(op.servicekosten)}</span></div>
         <div class="opbouw-row opbouw-totaal"><span>Totaal</span><span>${euro(op.totaal)}</span></div>`;
       document.getElementById("b-btn").textContent = `Boeken — ${euro(op.totaal)}`;

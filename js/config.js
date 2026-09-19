@@ -21,13 +21,11 @@ window.MOETNU_CONFIG = {
     { tot: Infinity, bedrag: 14.95 },
   ],
 
-  // ---- Snelheidstiers (voorkeur van de klant; géén opgelegde toeslag) ----
-  // De aanbieder bepaalt zelf zijn tarief. Spoed is een wens die de klant
-  // aangeeft; de aanbieder kan in zijn offerte zelf bepalen wat hij daarvoor vraagt.
+  // ---- Snelheidstiers (spoedtoeslag op de basisprijs) ----
   SPOED_TIERS: {
-    plannen: { label: "Plannen",  omschrijving: "Morgen of later" },
-    vandaag: { label: "Vandaag",  omschrijving: "Vandaag uitgevoerd" },
-    nu:      { label: "NU",       omschrijving: "Binnen 60–120 min" },
+    plannen: { label: "Plannen",  omschrijving: "Morgen of later", toeslag_pct: 0 },
+    vandaag: { label: "Vandaag",  omschrijving: "Vandaag uitgevoerd", toeslag_pct: 15 },
+    nu:      { label: "NU",       omschrijving: "Binnen 60–120 min", toeslag_pct: 30 },
   },
 
   // ---- Mollie (fase 2) ----
