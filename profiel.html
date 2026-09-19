@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aanbieder — Moetnu</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <link rel="canonical" href="https://moetnu.nl/profiel.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Aanbieder — Moetnu">
+  <meta property="og:url" content="https://moetnu.nl/profiel.html">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="diensten">
+  <header id="header"></header>
+
+  <main class="container page">
+    <div id="profiel"></div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong></div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const id = qs("id");
+      const el = document.getElementById("profiel");
+      if (!id) { el.innerHTML = '<div class="empty">Geen aanbieder opgegeven.</div>'; return; }
+      const prof = await SF.getProfile(id);
+      if (!prof) { el.innerHTML = '<div class="empty"><div class="big">👤</div>Aanbieder niet gevonden.</div>'; return; }
+
+      const verified = await SF.isVerified(id);
+      const certs = await SF.getVerifiedCertifications(id);
+      const portfolio = await SF.getPortfolio(id);
+      const reviews = await SF.getReviewsForUser(id);
+      const avg = reviews.length ? (reviews.reduce((a, r) => a + Number(r.rating), 0) / reviews.length).toFixed(1) : null;
+      const all = await SF.getServices();
+      const services = (all || []).filter(s => s.provider_id === id && s.status === "actief");
+
+      const naam = ((prof.voornaam || "") + " " + (prof.achternaam || "")).trim() || "Aanbieder";
+      const initiaal = (naam.charAt(0) || "A").toUpperCase();
+
+      const portfolioHtml = portfolio.length
+        ? `<div class="foto-rij">${portfolio.map(f => `
+            <div class="portfolio-item">
+              <img src="${esc(f.foto_url)}" alt="${esc(f.titel || "Werkfoto")}" loading="lazy">
+              ${f.titel ? `<div class="portfolio-meta"><span class="s">${esc(f.titel)}</span></div>` : ""}
+            </div>`).join("")}</div>`
+        : '<div class="text-muted">Nog geen portfolio.</div>';
+
+      const certsHtml = certs.length
+        ? certs.map(c => `<span class="badge badge-cat badge-inline">${esc(c.type)}${c.nummer ? " · " + esc(c.nummer) : ""}</span>`).join("")
+        : '<span class="text-muted">Geen certificeringen.</span>';
+
+      const servicesHtml = services.length
+        ? services.map(s => `<div class="list-row">
+            <div><div class="t">${esc(s.titel)}</div><div class="s">📍 ${esc(s.regio)} · ${prijsLabel(s)}</div></div>
+            <a class="btn btn-sm btn-ghost" href="dienst.html?id=${s.id}">Bekijk</a>
+          </div>`).join("")
+        : '<div class="text-muted">Nog geen actieve diensten.</div>';
+
+      const reviewsHtml = reviews.length
+        ? reviews.slice(0, 10).map(r => `<div class="list-row">
+            <div>
+              <div class="t">${"★".repeat(Number(r.rating))}<span class="text-muted">${"☆".repeat(5 - Number(r.rating))}</span></div>
+              <div class="s">${esc(r.tekst || "")}</div>
+              <div class="s text-muted">${esc(r.reviewer_voornaam || "Klant")}</div>
+            </div>
+          </div>`).join("")
+        : '<div class="text-muted">Nog geen reviews.</div>';
+
+      el.innerHTML = `
+        <div class="profiel-header">
+          <div class="avatar avatar-big">${esc(initiaal)}</div>
+          <div class="profiel-info">
+            <h1>${esc(naam)} ${verified ? '<span class="badge badge-verified">✓ Geverifieerd</span>' : ""}</h1>
+            <p class="text-muted">📍 ${esc(prof.regio || "Nederland")}</p>
+            ${avg ? `<p class="mt-1"><span class="price">${avg}</span> <span class="text-muted">★ · ${reviews.length} review(s)</span></p>` : ""}
+          </div>
+        </div>
+
+        ${prof.bio ? `<div class="panel mt-3"><h2>Over ${esc(prof.voornaam || "deze aanbieder")}</h2><p class="desc">${esc(prof.bio)}</p></div>` : ""}
+
+        <div class="panel mt-3">
+          <h2>Certificeringen</h2>
+          <div class="mt-1">${certsHtml}</div>
+        </div>
+
+        <div class="panel mt-3">
+          <h2>Werk & portfolio (${portfolio.length})</h2>
+          <div class="mt-2">${portfolioHtml}</div>
+        </div>
+
+        <div class="panel mt-3">
+          <h2>Diensten (${services.length})</h2>
+          ${servicesHtml}
+        </div>
+
+        <div class="panel mt-3">
+          <h2>Reviews (${reviews.length})</h2>
+          ${reviewsHtml}
+        </div>`;
+    });
+  </script>
+</body>
+</html>

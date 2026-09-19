@@ -1,0 +1,21 @@
+# Secrets — nooit committen
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+.htpasswd
+
+# Node / JS
+node_modules/
+
+# Dev-scripts & artifacts
+verify*.py
+logo-concepts/
+logo_compare.png
+*.bak
+
+# OS / editor
+.DS_Store
+*.log
+.wrangler/

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dienst — Moetnu</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <link rel="canonical" href="https://moetnu.nl/dienst.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Dienst — Moetnu">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://moetnu.nl/dienst.html">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="diensten">
+  <header id="header"></header>
+
+  <main class="container page">
+    <div id="detail"></div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong></div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/chat.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const id = qs("id");
+      const el = document.getElementById("detail");
+      if (!id) { el.innerHTML = '<div class="empty">Geen dienst opgegeven.</div>'; return; }
+      const svc = await SF.getService(id);
+      if (!svc) { el.innerHTML = '<div class="empty"><div class="big">🔍</div>Dienst niet gevonden.</div>'; return; }
+
+      const cat = (await SF.getCategories()).find(c => c.id === svc.category_id);
+      const provider = svc.profiles ? svc.profiles : await SF.getProfile(svc.provider_id);
+      const verified = await SF.isVerified(svc.provider_id);
+      const certs = await SF.getVerifiedCertifications(svc.provider_id);
+      const portfolio = await SF.getPortfolio(svc.provider_id);
+      const reviews = await SF.getReviewsForUser(svc.provider_id);
+      const avg = reviews.length ? (reviews.reduce((a, r) => a + Number(r.rating), 0) / reviews.length).toFixed(1) : null;
+
+      const reviewsHtml = reviews.length
+        ? reviews.slice(0, 5).map(r => `
+            <div class="list-row">
+              <div>
+                <div class="t">${"★".repeat(Number(r.rating))}<span class="text-muted">${"☆".repeat(5 - Number(r.rating))}</span></div>
+                <div class="s">${esc(r.tekst || "")}</div>
+                <div class="s text-muted">${esc(r.reviewer_voornaam || "Klant")}</div>
+              </div>
+            </div>`).join("")
+        : '<div class="text-muted empty-inline">Nog geen reviews.</div>';
+
+      el.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-main">
+            <div class="meta">
+              <span class="badge badge-cat">${esc(cat?.naam || "Dienst")}</span>
+              <span class="badge badge-regio">📍 ${esc(svc.regio)}</span>
+              <span class="badge badge-open">● Beschikbaar</span>
+              ${verified ? '<span class="badge badge-verified">✓ Geverifieerd</span>' : ""}
+            </div>
+            <h1>${esc(svc.titel)}</h1>
+            ${avg ? `<div class="mt-1"><span class="price">${avg}</span> <span class="text-muted">★ · ${reviews.length} review(s)</span></div>` : ""}
+            <div class="desc">${esc(svc.omschrijving || "Geen omschrijving.")}</div>
+            <div class="panel mt-3">
+              <h2>Over de aanbieder</h2>
+              <p class="provider-naam">${esc((provider?.voornaam||"") + " " + (provider?.achternaam||""))} ${verified ? ' <span class="badge badge-verified">✓ Geverifieerd</span>' : ""}</p>
+              <p class="text-muted">📍 ${esc(provider?.regio || svc.regio)}</p>
+              <a class="btn btn-sm btn-ghost mt-1" href="profiel.html?id=${svc.provider_id}">Bekijk volledig profiel →</a>
+              ${provider?.bio ? `<p class="desc mt-2">${esc(provider.bio)}</p>` : ""}
+              ${portfolio.length ? `<div class="mt-2">
+                <p class="panel-label">Werk & portfolio:</p>
+                <div class="foto-rij">
+                  ${portfolio.map(f => `<div class="portfolio-item"><img src="${esc(f.foto_url)}" alt="${esc(f.titel || "Werkfoto")}" loading="lazy">${f.titel ? `<div class="portfolio-meta"><span class="s">${esc(f.titel)}</span></div>` : ""}</div>`).join("")}
+                </div>
+              </div>` : ""}
+              ${certs.length ? `<div class="mt-2">
+                <p class="panel-label">Certificeringen & registraties:</p>
+                ${certs.map(c => `<span class="badge badge-cat badge-inline">${esc(c.type)}${c.nummer ? " · " + esc(c.nummer) : ""}</span>`).join("")}
+              </div>` : ""}
+            </div>
+            <div class="panel mt-3">
+              <h2>Reviews (${reviews.length})</h2>
+              ${reviewsHtml}
+            </div>
+            <div id="chat-box"></div>
+          </div>
+          <div class="detail-side">
+            <div class="price-big">${prijsLabel(svc)}</div>
+            <p class="text-muted side-note">${svc.prijs_type === "per_uur" ? "Uurtarief, totaal na klus." : svc.prijs_type === "vanaf" ? "Vanaf-prijs, exacte prijs na intake." : "Vaste prijs."}</p>
+            <hr class="rule">
+            <label class="side-label">Hoe snel?</label>
+            <div class="spoed-keuze" id="spoed-keuze">
+              <label class="spoed-opt">
+                <input type="radio" name="snelheid" value="plannen" checked>
+                <span class="spoed-l">Plannen</span><span class="spoed-d">Morgen of later</span>
+              </label>
+              <label class="spoed-opt">
+                <input type="radio" name="snelheid" value="vandaag">
+                <span class="spoed-l">Vandaag</span><span class="spoed-d">Zelfde dag</span>
+              </label>
+              <label class="spoed-opt">
+                <input type="radio" name="snelheid" value="nu">
+                <span class="spoed-l">NU</span><span class="spoed-d">Binnen 60–120 min</span>
+              </label>
+            </div>
+            <div class="prijs-opbouw" id="prijs-opbouw"></div>
+            <form onsubmit="boek(event, '${svc.id}', ${Number(svc.prijs) || 0})">
+              <label>Gewenste datum</label>
+              <input type="date" id="b-datum" required>
+              <label>Bericht (optioneel)</label>
+              <textarea id="b-bericht" placeholder="Beschrijf kort je klus..."></textarea>
+              <button class="btn btn-primary btn-block mt-2" type="submit" id="b-btn">Boeken</button>
+              <p class="hint center">Veilig betalen via het platform. Je betaalt pas na akkoord van de aanbieder.</p>
+            </form>
+          </div>
+        </div>`;
+
+      BASE_PRIJS = Number(svc.prijs) || 0;
+      updatePrijs();
+      document.querySelectorAll('input[name=snelheid]').forEach(r => r.addEventListener('change', updatePrijs));
+
+      // chat: klant met een boeking voor deze dienst praat met de aanbieder
+      const user = await SF.currentUser();
+      if (user) {
+        const bookings = await SF.myBookings(user.id);
+        const b = bookings.find(x => x.service_id === svc.id && x.customer_id === user.id);
+        if (b) {
+          await MoetnuChat.mount(document.getElementById("chat-box"), {
+            booking_id: b.id,
+            recipient_id: svc.provider_id,
+            recipient_naam: (provider?.voornaam || "de aanbieder"),
+          });
+        }
+      }
+    });
+    let BASE_PRIJS = 0;
+    function getTier() {
+      const r = document.querySelector('input[name=snelheid]:checked');
+      return r ? r.value : "plannen";
+    }
+    function updatePrijs() {
+      const op = SF.prijsOpbouw(BASE_PRIJS, getTier());
+      document.getElementById("prijs-opbouw").innerHTML = `
+        <div class="opbouw-row"><span>Basisprijs</span><span>${euro(op.basis)}</span></div>
+        <div class="opbouw-row"><span>Servicekosten</span><span>+${euro(op.servicekosten)}</span></div>
+        <div class="opbouw-row opbouw-totaal"><span>Totaal</span><span>${euro(op.totaal)}</span></div>`;
+      document.getElementById("b-btn").textContent = `Boeken — ${euro(op.totaal)}`;
+    }
+
+    async function boek(e, serviceId, prijs) {
+      e.preventDefault();
+      const user = await requireAuth();
+      if (!user) return;
+      const svc = await SF.getService(serviceId);
+      const tier = getTier();
+      const op = SF.prijsOpbouw(prijs, tier);
+      const { data, error } = await SF.createBooking({
+        service_id: serviceId,
+        customer_id: user.id,
+        provider_id: svc.provider_id,
+        bedrag: op.basis,
+        snelheid: tier,
+        spoed_toeslag: op.toeslag,
+        servicekosten: op.servicekosten,
+        totaal: op.totaal,
+        gewenste_datum: document.getElementById("b-datum").value,
+        bericht: document.getElementById("b-bericht").value,
+      });
+      if (error) { toast(error.message || "Fout bij boeken", "error"); return; }
+      toast("Boeking aangevraagd!", "success");
+      setTimeout(() => (location.href = "dashboard.html"), 700);
+    }
+  </script>
+</body>
+</html>

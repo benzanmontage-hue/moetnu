@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klus — Moetnu</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <link rel="canonical" href="https://moetnu.nl/klus.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Klus — Moetnu">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://moetnu.nl/klus.html">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="klussen">
+  <header id="header"></header>
+
+  <main class="container page">
+    <div id="detail"></div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong></div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/geo.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/chat.js"></script>
+  <script>
+    let CURRENT_JOB = null;
+    document.addEventListener("DOMContentLoaded", async () => {
+      const id = qs("id");
+      const el = document.getElementById("detail");
+      if (!id) { el.innerHTML = '<div class="empty">Geen klus opgegeven.</div>'; return; }
+      const job = await SF.getJob(id);
+      if (!job) { el.innerHTML = '<div class="empty"><div class="big">📋</div>Klus niet gevonden.</div>'; return; }
+      CURRENT_JOB = job;
+      const cats = await SF.getCategories();
+      const cat = cats.find(c => c.id === job.category_id);
+      const poster = await SF.getProfile(job.poster_id);
+      const bids = await SF.getBids(id);
+      const user = await SF.currentUser();
+      const isPoster = !!user && user.id === job.poster_id;
+      const myBid = user ? bids.find(b => b.provider_id === user.id) : null;
+
+      // namen van bieders ophalen
+      const bidderProfiles = {};
+      await Promise.all(bids.map(async (b) => { bidderProfiles[b.provider_id] = await SF.getProfile(b.provider_id); }));
+      window._bidderProfiles = bidderProfiles;
+
+      const budget = job.budget_min || job.budget_max ? `€${job.budget_min||0} – €${job.budget_max||"?"}` : "n.t.b.";
+
+      const bidsHtml = bids.length
+        ? bids.map(b => {
+            const p = bidderProfiles[b.provider_id];
+            const naam = p ? ((p.voornaam||"") + " " + (p.achternaam||"")).trim() : "Aanbieder";
+            const isGekozen = b.status === "gekozen";
+            const kiesBtn = (isPoster && job.status === "open")
+              ? `<button class="btn btn-sm btn-primary" onclick="kiesAanbieder('${b.provider_id}')">Kies</button>`
+              : (isGekozen ? '<span class="badge badge-verified">✓ Gekozen</span>' : (b.status === "afgewezen" ? '<span class="badge badge-gesloten">Afgewezen</span>' : ""));
+            const chatBtn = isPoster ? `<button class="btn btn-sm btn-ghost" onclick="openChatBid('${b.provider_id}')">Chat</button>` : "";
+            return `<div class="list-row">
+              <div><div class="t"><a href="profiel.html?id=${b.provider_id}" class="plain-link">${esc(naam)}</a> ${p?.geverifieerd ? '<span class="badge badge-verified">✓</span>' : ""}</div><div class="s">${esc(b.bericht || "")}</div></div>
+              <div class="row-end"><span class="price price-sm">${euro(b.bedrag)}</span>${kiesBtn}${chatBtn}</div>
+            </div>`;
+          }).join("")
+        : '<div class="text-muted empty-inline">Nog geen offertes.</div>';
+
+      el.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-main">
+            <div class="meta">
+              <span class="badge badge-cat">${esc(cat?.naam || "Klus")}</span>
+              <span class="badge badge-regio">📍 ${esc(job.regio)}</span>
+              <span class="badge ${job.status === "open" ? "badge-open" : job.status === "voltooid" ? "badge-verified" : "badge-gesloten"}">${job.status === "open" ? "Open" : job.status === "toegewezen" ? "Toegewezen" : job.status === "voltooid" ? "Voltooid" : "Gesloten"}</span>
+            </div>
+            <h1>${esc(job.titel)}</h1>
+            <div class="desc">${esc(job.omschrijving || "Geen omschrijving.")}</div>
+            ${(job.foto_urls && job.foto_urls.length) ? `<div class="foto-rij mt-2">${job.foto_urls.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" class="job-foto" alt="Klusfoto" loading="lazy"></a>`).join("")}</div>` : ""}
+            ${job.deadline ? `<p class="mt-2 text-muted">🗓️ Deadline: ${esc(job.deadline)}</p>` : ""}
+            <p class="mt-2 text-muted">Geplaatst ${tijdAgo(job.created_at)} door ${esc(poster?.voornaam || "een klant")}</p>
+            ${isPoster ? `<div class="panel mt-3">
+              <h2>Beheer je klus</h2>
+              <div class="row-actions">
+                ${job.status !== "voltooid" ? `<button class="btn btn-sm btn-ghost" onclick="markeerVoltooid('${job.id}')">Markeer als voltooid</button>` : ""}
+                <button class="btn btn-sm btn-ghost" onclick="verwijderKlus('${job.id}')">Verwijderen</button>
+              </div>
+            </div>` : ""}
+            <div class="panel mt-3" id="matching-panel" style="display:none">
+              <h2>Matching <span class="badge badge-open badge-row-end">● Actief</span></h2>
+              <div id="matching-inhoud"></div>
+            </div>
+            <div class="panel mt-3">
+              <h2>Offertes (${bids.length})</h2>
+              ${bidsHtml}
+            </div>
+            <div id="chat-box"></div>
+          </div>
+          <div class="detail-side">
+            <div class="price-big">${budget}</div>
+            <p class="text-muted side-note">Budget-indicatie van de klant.</p>
+            <hr class="rule">
+            ${isPoster ? `<div class="text-muted side-note">Dit is jouw klus — je kunt hier niet op je eigen klus reageren.</div>` : `<form onsubmit="bied(event, '${job.id}')">
+              <label>Jouw offerte (€)</label>
+              <input type="number" id="b-bedrag" min="1" step="0.01" required placeholder="bv. 120">
+              <label>Bericht (optioneel)</label>
+              <textarea id="b-bericht" placeholder="Waarom ben jij de juiste?"></textarea>
+              <button class="btn btn-primary btn-block mt-2" type="submit">Offerte plaatsen</button>
+              <p class="hint center">Gratis reageren. Pas bij een gewonnen klus betaal je 25% commissie.</p>
+            </form>`}
+          </div>
+        </div>`;
+
+      renderMatching();
+      setInterval(renderMatching, 5000);
+
+      // chat: bieder praat met poster; poster kiest via de Chat-knoppen
+      if (myBid) {
+        await MoetnuChat.mount(document.getElementById("chat-box"), {
+          job_id: job.id,
+          recipient_id: job.poster_id,
+          recipient_naam: (poster?.voornaam || "de klant"),
+        });
+      }
+    });
+
+    async function openChatBid(providerId) {
+      const p = window._bidderProfiles?.[providerId];
+      const naam = p ? ((p.voornaam||"") + " " + (p.achternaam||"")).trim() : "Aanbieder";
+      await MoetnuChat.mount(document.getElementById("chat-box"), {
+        job_id: CURRENT_JOB.id,
+        recipient_id: providerId,
+        recipient_naam: naam,
+      });
+    }
+
+    async function renderMatching() {
+      if (!CURRENT_JOB) return;
+      const panel = document.getElementById("matching-panel");
+      const inhoud = document.getElementById("matching-inhoud");
+      if (!panel || !inhoud) return;
+      const status = await SF.matchingStatus(CURRENT_JOB);
+      panel.style.display = "";
+      const prov = status.providers;
+      inhoud.innerHTML = `
+        <div class="grid grid-tight mb-2 matching-stats">
+          <div class="stat-mini">
+            <div class="k">Zoekradius</div>
+            <div class="v">${status.radius} km</div>
+          </div>
+          <div class="stat-mini">
+            <div class="k">Budget-indicatie</div>
+            <div class="v">€${status.vergoeding.bedrag || 0}</div>
+          </div>
+          <div class="stat-mini">
+            <div class="k">Aanbieders in de buurt</div>
+            <div class="v">${prov.length}</div>
+          </div>
+        </div>
+        ${prov.length ? `
+          <div class="text-muted list-label">Aanbieders die deze klus kunnen zien:</div>
+          ${prov.map(p => `
+            <div class="list-row">
+              <div><div class="t">${esc((p.voornaam||"") + " " + (p.achternaam||""))} ${p.geverifieerd ? '<span class="badge badge-verified">✓</span>' : ""} ${p.categorie_match ? '<span class="badge badge-cat">passend</span>' : ""}</div>
+              <div class="s">📍 ${esc(p.regio)} · ${p.afstand_km} km</div></div>
+              <span class="pill pill-open">bereikbaar</span>
+            </div>`).join("")}
+        ` : `<div class="text-muted side-note">Nog geen aanbieders binnen ${status.radius} km. De zoekradius wordt automatisch vergroot zodat meer aanbieders je klus kunnen zien.</div>`}
+        <p class="hint mt-2">${status.biedingen ? `${status.biedingen} offerte(s) ontvangen.` : "Nog geen offertes. Aanbieders bepalen zelf hun tarief en of ze reageren."}</p>`;
+    }
+
+    async function bied(e, jobId) {
+      e.preventDefault();
+      const user = await requireAuth();
+      if (!user) return;
+      const prof = await SF.getProfile(user.id);
+      const rol = prof?.rol || user.rol || "klant";
+      if (rol === "klant") { toast("Je moet aanbieder zijn om te reageren.", "error"); return; }
+      const bedrag = document.getElementById("b-bedrag").value;
+      const bericht = document.getElementById("b-bericht").value;
+      const { error } = await SF.bidOnJob(jobId, user.id, Number(bedrag), bericht);
+      if (error) { toast(error.message || "Fout bij plaatsen offerte", "error"); return; }
+      toast("Offerte geplaatst!", "success");
+      setTimeout(() => location.reload(), 700);
+    }
+
+    async function kiesAanbieder(providerId) {
+      if (!confirm("Deze aanbieder kiezen voor je klus? De overige offertes worden afgewezen.")) return;
+      const { error } = await SF.chooseBid(CURRENT_JOB.id, providerId);
+      if (error) { toast(error.message || "Fout bij kiezen", "error"); return; }
+      toast("Aanbieder gekozen!", "success");
+      setTimeout(() => location.reload(), 600);
+    }
+
+    async function verwijderKlus(id) {
+      if (!confirm("Deze klus definitief verwijderen?")) return;
+      const { error } = await SF.deleteJob(id);
+      if (error) { toast("Verwijderen mislukt", "error"); return; }
+      toast("Klus verwijderd", "success");
+      setTimeout(() => (location.href = "dashboard.html"), 600);
+    }
+
+    async function markeerVoltooid(id) {
+      const { error } = await SF.updateJobStatus(id, "voltooid");
+      if (error) { toast("Fout bij bijwerken", "error"); return; }
+      toast("Klus gemarkeerd als voltooid!", "success");
+      setTimeout(() => location.reload(), 600);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Moetnu</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <link rel="canonical" href="https://moetnu.nl/dashboard.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Dashboard — Moetnu">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://moetnu.nl/dashboard.html">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="dashboard">
+  <header id="header"></header>
+
+  <main class="container page">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub mb-2">Je account en activiteit op Moetnu.</p>
+
+    <div class="dash-grid">
+      <aside class="dash-side">
+        <a href="#" class="active" onclick="return false">Overzicht</a>
+        <a href="plaatsen.html?type=dienst">+ Nieuwe dienst</a>
+        <a href="plaatsen.html?type=klus">+ Nieuwe klus</a>
+      </aside>
+
+      <section class="dash-main">
+        <div class="stat-grid" id="stat-grid"></div>
+        <div class="panel" id="panel-profiel">
+          <h2>Profiel</h2>
+          <div id="profiel-weergave"></div>
+        </div>
+        <div class="panel" id="panel-certificering" style="display:none">
+          <h2>Verificatie & certificering</h2>
+          <div id="cert-weergave"></div>
+        </div>
+        <div class="panel" id="panel-vakgebieden" style="display:none">
+          <h2>Vakgebieden</h2>
+          <p class="text-muted side-note">Kies de categorieën waarin je werkt. Zo zien klanten sneller of je past.</p>
+          <div id="vakgebieden-weergave"></div>
+        </div>
+        <div class="panel" id="panel-beschikbaarheid" style="display:none">
+          <h2>Beschikbaarheid</h2>
+          <p class="text-muted side-note">Geef per dag aan wanneer je bereikbaar bent (leeg = niet beschikbaar).</p>
+          <div id="beschikbaarheid-weergave"></div>
+        </div>
+        <div class="panel" id="panel-portfolio" style="display:none">
+          <h2>Mijn werk & portfolio</h2>
+          <p class="text-muted side-note">Laat zien wat je kan. Upload foto's van je werk — klanten zien deze op je dienstenpagina.</p>
+          <div id="portfolio-weergave"></div>
+        </div>
+        <div class="panel" id="panel-diensten" style="display:none">
+          <h2>Mijn diensten</h2>
+          <div id="mijn-diensten"></div>
+        </div>
+        <div class="panel" id="panel-klussen" style="display:none">
+          <h2>Mijn klussen</h2>
+          <div id="mijn-klussen"></div>
+        </div>
+        <div class="panel" id="panel-offertes" style="display:none">
+          <h2>Mijn offertes</h2>
+          <div id="mijn-offertes"></div>
+        </div>
+        <div class="panel" id="panel-boekingen" style="display:none">
+          <h2>Mijn boekingen</h2>
+          <div id="mijn-boekingen"></div>
+        </div>
+        <div class="panel" id="panel-avg">
+          <h2>Mijn gegevens & privacy (AVG)</h2>
+          <div id="avg-weergave"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong></div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const STATUS_LABEL = {
+      open: "Open", toegewezen: "Toegewezen", gesloten: "Gesloten", voltooid: "Voltooid",
+      aangevraagd: "Aangevraagd", betaald: "Betaald", uitgevoerd: "Uitgevoerd", geannuleerd: "Geannuleerd", geschil: "Geschil",
+    };
+    const STATUS_PILL = {
+      open: "pill-open", aangevraagd: "pill-aangevraagd", betaald: "pill-betaald", uitgevoerd: "pill-uitgevoerd", gesloten: "pill-gesloten", geannuleerd: "pill-gesloten", toegewezen: "pill-betaald", geschil: "pill-gesloten", voltooid: "pill-uitgevoerd",
+    };
+
+    let currentUser = null;
+    let stats = { diensten: 0, klussen: 0, boekingen: 0, offertes: 0 };
+
+    function renderStats() {
+      const s = [
+        ["Diensten", stats.diensten],
+        ["Klussen", stats.klussen],
+        ["Boekingen", stats.boekingen],
+        ["Offertes", stats.offertes],
+      ];
+      document.getElementById("stat-grid").innerHTML = s.map(([l, n]) =>
+        `<div class="stat-card"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      currentUser = await requireAuth();
+      if (!currentUser) return;
+
+      const prof = await SF.getProfile(currentUser.id);
+      const rol = prof?.rol || "klant";
+      const rolLabel = rol === "aanbieder" ? "Aanbieder" : rol === "beide" ? "Klant & Aanbieder" : "Klant";
+      const naam = ((prof?.voornaam || "") + " " + (prof?.achternaam || "")).trim() || "Gebruiker";
+      const initiaal = (prof?.voornaam || "G").charAt(0).toUpperCase();
+      const geverifieerd = (rol === "aanbieder" || rol === "beide") ? await SF.isVerified(currentUser.id) : false;
+
+      // Profiel weergave + edit
+      document.getElementById("profiel-weergave").innerHTML = `
+        <div class="profiel-header">
+          <div class="avatar">${esc(initiaal)}</div>
+          <div class="profiel-info">
+            <div class="naam">${esc(naam)}</div>
+            <div class="email">${esc(currentUser.email || "")}</div>
+          </div>
+        </div>
+        <div class="badge-rij mt-2">
+          <span class="badge badge-cat">${rolLabel}</span>
+          ${geverifieerd ? '<span class="badge badge-verified">✓ Geverifieerd</span>' : ""}
+        </div>
+        <hr class="rule">
+        <div class="form-row">
+          <div>
+            <label>Voornaam</label>
+            <input type="text" id="p-voornaam" value="${esc(prof?.voornaam || "")}">
+          </div>
+          <div>
+            <label>Regio</label>
+            <input type="text" id="p-regio" value="${esc(prof?.regio || "")}" placeholder="bv. Amsterdam">
+          </div>
+        </div>
+        <label>Ik ben</label>
+        <select id="p-rol">
+          <option value="klant" ${rol==="klant"?"selected":""}>Klant (ik zoek hulp)</option>
+          <option value="aanbieder" ${rol==="aanbieder"?"selected":""}>Aanbieder (ik bied diensten aan)</option>
+          <option value="beide" ${rol==="beide"?"selected":""}>Beide</option>
+        </select>
+        <label>Over mij / wat ik doe</label>
+        <textarea id="p-bio" placeholder="Beschrijf wat je doet, je ervaring en waar je goed in bent.">${esc(prof?.bio || "")}</textarea>
+        <button class="btn btn-primary mt-2" onclick="saveProfiel()">Opslaan</button>
+      `;
+
+      // Laad secties op basis van rol
+      if (rol === "aanbieder" || rol === "beide") {
+        await laadCertificering();
+        await laadAanbieder();
+        await laadVakgebieden();
+        await laadBeschikbaarheid();
+        await laadPortfolio();
+      }
+      await laadKlant();
+      await laadAVG();
+      renderStats();
+    });
+
+    async function saveProfiel() {
+      const patch = {
+        voornaam: document.getElementById("p-voornaam").value.trim(),
+        regio: document.getElementById("p-regio").value.trim(),
+        rol: document.getElementById("p-rol").value,
+        bio: document.getElementById("p-bio").value.trim(),
+      };
+      const { error } = await SF.updateProfile(currentUser.id, patch);
+      if (error) { toast("Fout bij opslaan", "error"); return; }
+      toast("Opgeslagen!", "success");
+      setTimeout(() => location.reload(), 600);
+    }
+
+    async function laadAanbieder() {
+      const svcs = await SF.myServices(currentUser.id);
+      stats.diensten = svcs.length;
+      const p1 = document.getElementById("panel-diensten");
+      p1.style.display = "";
+      document.getElementById("mijn-diensten").innerHTML = svcs.length
+        ? svcs.map(s => {
+            const statusLabel = { actief: "Actief", pauze: "Gepauzeerd", verwijderd: "Verwijderd" }[s.status] || s.status;
+            const actions = s.status !== "verwijderd"
+              ? `<div class="row-actions">
+                  ${s.status === "actief"
+                    ? `<button class="btn btn-sm btn-ghost" onclick="pauzeerDienst('${s.id}')">Pauzeren</button>`
+                    : `<button class="btn btn-sm btn-ghost" onclick="activeerDienst('${s.id}')">Activeren</button>`}
+                  <button class="btn btn-sm btn-ghost" onclick="verwijderDienst('${s.id}')">Verwijderen</button>
+                </div>`
+              : "";
+            return `<div class="list-row">
+              <div><div class="t">${esc(s.titel)}</div><div class="s">${esc(s.regio)} · ${prijsLabel(s)}</div>${actions}</div>
+              <div class="list-side"><span class="pill ${s.status === "actief" ? "pill-open" : "pill-gesloten"}">${statusLabel}</span> <a class="btn btn-sm btn-ghost" href="dienst.html?id=${s.id}">Bekijk</a></div>
+            </div>`;
+          }).join("")
+        : '<div class="text-muted">Nog geen diensten. <a href="plaatsen.html?type=dienst">Plaats je eerste dienst</a></div>';
+
+      const bids = await SF.myBids(currentUser.id);
+      stats.offertes = bids.length;
+      const p3 = document.getElementById("panel-offertes");
+      if (bids.length) {
+        p3.style.display = "";
+        document.getElementById("mijn-offertes").innerHTML = bids.map(b => `<div class="list-row">
+            <div><div class="t">Offerte €${b.bedrag}</div><div class="s">Klus: ${esc(b.id)}</div></div>
+            <span class="pill ${STATUS_PILL[b.status]||""}">${STATUS_LABEL[b.status]||b.status}</span>
+          </div>`).join("");
+      }
+    }
+
+    async function laadKlant() {
+      const jobs = await SF.myJobs(currentUser.id);
+      stats.klussen = jobs.length;
+      const p2 = document.getElementById("panel-klussen");
+      if (jobs.length) {
+        p2.style.display = "";
+        document.getElementById("mijn-klussen").innerHTML = jobs.map(j => {
+          const actions = (j.status === "open" || j.status === "toegewezen")
+            ? `<div class="row-actions">
+                ${j.status !== "voltooid" ? `<button class="btn btn-sm btn-ghost" onclick="markeerVoltooid('${j.id}')">Voltooid</button>` : ""}
+                <button class="btn btn-sm btn-ghost" onclick="verwijderKlus('${j.id}')">Verwijderen</button>
+              </div>`
+            : "";
+          return `<div class="list-row">
+            <div><div class="t">${esc(j.titel)}</div><div class="s">${esc(j.regio)}</div>${actions}</div>
+            <span class="pill ${STATUS_PILL[j.status]||""}">${STATUS_LABEL[j.status]||j.status}</span>
+          </div>`;
+        }).join("");
+      }
+
+      const bookings = await SF.myBookings(currentUser.id);
+      stats.boekingen = bookings.length;
+      const p4 = document.getElementById("panel-boekingen");
+      if (bookings.length) {
+        p4.style.display = "";
+        document.getElementById("mijn-boekingen").innerHTML = bookings.map(b => {
+          const snelLabel = { plannen: "Plannen", vandaag: "Vandaag", nu: "NU" }[b.snelheid] || "";
+          const prijs = b.totaal ? euro(b.totaal) : euro(b.bedrag);
+          return `<div class="list-row">
+            <div><div class="t">Boeking ${prijs}${snelLabel ? " · " + snelLabel : ""}</div><div class="s">${esc(b.bericht || "")}</div></div>
+            <span class="pill ${STATUS_PILL[b.status]||""}">${STATUS_LABEL[b.status]||b.status}</span>
+          </div>`;
+        }).join("");
+      }
+
+      if (!jobs.length && !bookings.length) {
+        document.getElementById("panel-klussen").style.display = "";
+        document.getElementById("mijn-klussen").innerHTML = '<div class="text-muted">Nog geen klussen of boekingen. <a href="klussen.html">Bekijk open klussen</a> of <a href="diensten.html">boek een dienst</a>.</div>';
+      }
+    }
+
+    async function pauzeerDienst(id) {
+      const { error } = await SF.updateServiceStatus(id, "pauze");
+      if (error) { toast("Fout bij pauzeren", "error"); return; }
+      toast("Dienst gepauzeerd", "success");
+      setTimeout(() => location.reload(), 600);
+    }
+
+    async function activeerDienst(id) {
+      const { error } = await SF.updateServiceStatus(id, "actief");
+      if (error) { toast("Fout bij activeren", "error"); return; }
+      toast("Dienst geactiveerd!", "success");
+      setTimeout(() => location.reload(), 600);
+    }
+
+    async function verwijderDienst(id) {
+      if (!confirm("Deze dienst definitief verwijderen?")) return;
+      const { error } = await SF.deleteService(id);
+      if (error) { toast("Verwijderen mislukt", "error"); return; }
+      toast("Dienst verwijderd", "success");
+      setTimeout(() => location.reload(), 600);
+    }
+
+    async function verwijderKlus(id) {
+      if (!confirm("Deze klus definitief verwijderen?")) return;
+      const { error } = await SF.deleteJob(id);
+      if (error) { toast("Verwijderen mislukt", "error"); return; }
+      toast("Klus verwijderd", "success");
+      setTimeout(() => location.reload(), 600);
+    }
+
+    async function markeerVoltooid(id) {
+      const { error } = await SF.updateJobStatus(id, "voltooid");
+      if (error) { toast("Fout bij bijwerken", "error"); return; }
+      toast("Klus gemarkeerd als voltooid!", "success");
+      setTimeout(() => location.reload(), 600);
+    }
+
+    // ---- Portfolio (werkfoto's aanbieder) ----
+    async function laadPortfolio() {
+      const p = document.getElementById("panel-portfolio");
+      p.style.display = "";
+      const items = await SF.getPortfolio(currentUser.id);
+      document.getElementById("portfolio-weergave").innerHTML = `
+        <div class="foto-rij">
+          ${items.length ? items.map(f => `
+            <div class="portfolio-item">
+              <img src="${esc(f.foto_url)}" alt="${esc(f.titel || "Werkfoto")}" loading="lazy">
+              <div class="portfolio-meta">
+                <span class="s">${esc(f.titel || "")}</span>
+                <button class="btn btn-sm btn-ghost" onclick="verwijderPortfolioFoto('${f.id}')">Verwijderen</button>
+              </div>
+            </div>`).join("") : '<div class="text-muted">Nog geen foto\'s. Upload je eerste werkfoto hieronder.</div>'}
+        </div>
+        <hr class="rule">
+        <label>Foto toevoegen</label>
+        <input type="file" id="portfolio-foto" accept="image/*">
+        <label>Omschrijving (optioneel)</label>
+        <input type="text" id="portfolio-titel" placeholder="bv. Keukenrenovatie in Utrecht">
+        <button class="btn btn-primary mt-2" onclick="voegPortfolioFoto()">Uploaden</button>
+      `;
+    }
+
+    async function voegPortfolioFoto() {
+      const file = document.getElementById("portfolio-foto").files[0];
+      if (!file) { toast("Kies eerst een foto", "error"); return; }
+      const titel = document.getElementById("portfolio-titel").value.trim();
+      const { url, error } = await SF.uploadPortfolioFoto(file);
+      if (error) { toast(error.message || "Upload mislukt", "error"); return; }
+      const { error: e2 } = await SF.addPortfolio(currentUser.id, url, titel);
+      if (e2) { toast(e2.message || "Opslaan mislukt", "error"); return; }
+      toast("Foto toegevoegd!", "success");
+      await laadPortfolio();
+    }
+
+    async function verwijderPortfolioFoto(id) {
+      if (!confirm("Deze foto verwijderen uit je portfolio?")) return;
+      const { error } = await SF.deletePortfolioFoto(id);
+      if (error) { toast("Verwijderen mislukt", "error"); return; }
+      toast("Foto verwijderd", "success");
+      await laadPortfolio();
+    }
+
+    // ---- Verificatie & certificering ----
+    async function laadCertificering() {
+      const p = document.getElementById("panel-certificering");
+      p.style.display = "";
+      const certs = await SF.myCertifications(currentUser.id);
+      const verified = await SF.isVerified(currentUser.id);
+      const CERT_TYPES = ["KVK", "VCA", "Gasketelwet/CO", "NEN 3140", "NEN 1010", "SCIOS", "Asbest", "Vakdiploma", "Anders"];
+      const statusLabel = { geverifieerd: "Geverifieerd", afgewezen: "Afgewezen", in_behandeling: "In behandeling" };
+      const statusBadge = { geverifieerd: "badge-verified", afgewezen: "badge-pending", in_behandeling: "badge-pending" };
+      document.getElementById("cert-weergave").innerHTML = `
+        <p class="mb-2">Status: ${verified ? '<span class="badge badge-verified">✓ Geverifieerd</span>' : '<span class="badge badge-pending">Nog niet geverifieerd</span>'}</p>
+        <p class="text-muted side-note">Voor gas-, water- en elektrawerk is certificering wettelijk verplicht. Wij controleren je bewijs en zetten je profiel dan op "Geverifieerd".</p>
+        <div class="mt-2">${certs.length ? certs.map(c => `
+          <div class="cert-row"><div><div class="t">${esc(c.type)}</div><div class="s">${esc(c.nummer || "")}</div></div>
+          <span class="badge ${statusBadge[c.status] || "badge-pending"}">${statusLabel[c.status] || c.status}</span></div>`).join("")
+        : '<div class="text-muted side-note">Nog geen certificaten toegevoegd.</div>'}</div>
+        <hr class="rule">
+        <p class="panel-subtitle">Certificaat toevoegen</p>
+        <div class="form-row">
+          <div><label>Type</label><select id="cert-type">${CERT_TYPES.map(t => `<option>${t}</option>`).join("")}</select></div>
+          <div><label>Nummer / kenmerk</label><input type="text" id="cert-nummer" placeholder="bv. VCA-1234567"></div>
+        </div>
+        <button class="btn btn-primary mt-2" onclick="voegCertificaat()">Indienen ter controle</button>
+        <p class="hint">Handmatige controle (binnen 2 werkdagen). Daarna sta je als "Geverifieerd" op het platform.</p>
+      `;
+    }
+
+    async function voegCertificaat() {
+      const type = document.getElementById("cert-type").value;
+      const nummer = document.getElementById("cert-nummer").value.trim();
+      const { error } = await SF.addCertification({ user_id: currentUser.id, type, nummer });
+      if (error) { toast("Fout bij indienen", "error"); return; }
+      toast("Certificaat ingediend ter controle!", "success");
+      setTimeout(() => location.reload(), 600);
+    }
+
+    // ---- Vakgebieden ----
+    async function laadVakgebieden() {
+      const p = document.getElementById("panel-vakgebieden");
+      p.style.display = "";
+      const cats = await SF.getCategories();
+      const mijn = await SF.getProviderCategories(currentUser.id);
+      document.getElementById("vakgebieden-weergave").innerHTML = `
+        <div class="checkbox-grid">
+          ${cats.map(c => `<label class="check"><input type="checkbox" class="vc" value="${c.id}" ${mijn.includes(c.id) ? "checked" : ""}> ${esc(c.icon || "")} ${esc(c.naam)}</label>`).join("")}
+        </div>
+        <button class="btn btn-primary mt-2" onclick="saveVakgebieden()">Opslaan</button>`;
+    }
+
+    async function saveVakgebieden() {
+      const ids = [...document.querySelectorAll(".vc:checked")].map(c => c.value);
+      const { error } = await SF.setProviderCategories(currentUser.id, ids);
+      if (error) { toast("Fout bij opslaan", "error"); return; }
+      toast("Vakgebieden opgeslagen!", "success");
+    }
+
+    // ---- Beschikbaarheid ----
+    const DAGEN = [["ma","Maandag"],["di","Dinsdag"],["wo","Woensdag"],["do","Donderdag"],["vr","Vrijdag"],["za","Zaterdag"],["zo","Zondag"]];
+
+    async function laadBeschikbaarheid() {
+      const p = document.getElementById("panel-beschikbaarheid");
+      p.style.display = "";
+      const av = await SF.getAvailability(currentUser.id);
+      const map = {};
+      av.forEach(a => map[a.dag] = a);
+      document.getElementById("beschikbaarheid-weergave").innerHTML = `
+        <div class="avail-grid">
+          ${DAGEN.map(([dag, naam]) => `<div class="avail-row">
+            <span class="avail-dag">${naam}</span>
+            <input type="time" id="av-${dag}-s" value="${(map[dag]?.start_tijd || "").slice(0, 5)}">
+            <span class="avail-sep">–</span>
+            <input type="time" id="av-${dag}-e" value="${(map[dag]?.eind_tijd || "").slice(0, 5)}">
+          </div>`).join("")}
+        </div>
+        <button class="btn btn-primary mt-2" onclick="saveBeschikbaarheid()">Opslaan</button>`;
+    }
+
+    async function saveBeschikbaarheid() {
+      const entries = [];
+      for (const [dag] of DAGEN) {
+        const s = document.getElementById(`av-${dag}-s`).value;
+        const e = document.getElementById(`av-${dag}-e`).value;
+        if (s && e) entries.push({ dag, start_tijd: s, eind_tijd: e });
+      }
+      const { error } = await SF.setAvailability(currentUser.id, entries);
+      if (error) { toast(error.message || "Fout bij opslaan", "error"); return; }
+      toast("Beschikbaarheid opgeslagen!", "success");
+    }
+
+    // ---- AVG ----
+    async function laadAVG() {
+      document.getElementById("avg-weergave").innerHTML = `
+        <p class="text-muted side-note mb-2">Conform de AVG heb je recht op inzage, correctie, export en verwijdering van je gegevens. <a href="privacy.html">Lees de privacyverklaring</a>.</p>
+        <div class="dash-actions">
+          <button class="btn btn-ghost btn-sm" onclick="exportData()">Exporteer mijn gegevens (JSON)</button>
+          <button class="btn btn-danger btn-sm" onclick="verwijderAccount()">Verwijder mijn account</button>
+        </div>
+      `;
+    }
+
+    async function exportData() {
+      const data = await SF.exportMyData(currentUser.id);
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "moetnu-mijn-data.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      await SF.requestData(currentUser.id, "export");
+      toast("Je gegevens zijn geëxporteerd!", "success");
+    }
+
+    async function verwijderAccount() {
+      if (!confirm("Weet je zeker dat je je account wilt verwijderen? Al je gegevens worden gewist (AVG art. 17). Dit kan niet ongedaan worden gemaakt.")) return;
+      await SF.deleteAccount(currentUser.id);
+      toast("Account verwijderd. Tot ziens!", "success");
+      setTimeout(() => (location.href = "index.html"), 900);
+    }
+  </script>
+</body>
+</html>

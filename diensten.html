@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diensten — Moetnu</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta name="description" content="Alle vaste diensten op Moetnu. Filter op categorie en regio.">
+  <link rel="canonical" href="https://moetnu.nl/diensten.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Diensten — Moetnu">
+  <meta property="og:description" content="Alle vaste diensten op Moetnu. Filter op categorie en regio.">
+  <meta property="og:url" content="https://moetnu.nl/diensten.html">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="diensten">
+  <header id="header"></header>
+
+  <main class="container page">
+    <h1 class="page-title">Diensten</h1>
+    <p class="page-sub mb-2">Boek direct een vaste dienst bij een vakman in de buurt.</p>
+
+    <div class="searchbar searchbar--filter">
+      <input id="f-q" type="text" placeholder="Zoek op trefwoord...">
+      <select id="f-cat" aria-label="Categorie"><option value="">Alle categorieën</option></select>
+      <select id="f-regio" aria-label="Regio">
+        <option value="">Heel Nederland</option>
+        <option>Amsterdam</option><option>Rotterdam</option><option>Utrecht</option>
+        <option>Den Haag</option><option>Eindhoven</option><option>Groningen</option>
+        <option>Arnhem</option><option>Nijmegen</option><option>Tilburg</option>
+      </select>
+      <button class="btn btn-primary" onclick="loadServices()">Filter</button>
+    </div>
+
+    <div class="grid grid-cards" id="service-grid">
+          <a class="card" href="diensten/dakinspectie.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Dakdekker</span><span class="badge badge-regio">📍 Rotterdam</span></div>
+                  <h3>Dakinspectie</h3>
+                  <div class="desc">Professionele dakinspectie met rapport en advies.</div>
+                  <div class="foot flex-between"><span class="price">€75,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/daklekkage-repareren.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Dakdekker</span><span class="badge badge-regio">📍 Rotterdam</span></div>
+                  <h3>Daklekkage repareren</h3>
+                  <div class="desc">Opsporen en repareren van daklekkages. Vrijblijvende inspectie.</div>
+                  <div class="foot flex-between"><span class="price">vanaf €150,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/cilinderslot-vervangen.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Slotensmid</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                  <h3>Cilinderslot vervangen</h3>
+                  <div class="desc">Vervanging van cilindersloten, incl. SKG-goedgekeurd slot.</div>
+                  <div class="foot flex-between"><span class="price">€120,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/buitengesloten-deur-openen.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Slotensmid</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                  <h3>Buitengesloten? Deur openen</h3>
+                  <div class="desc">Buitengesloten? Ik open je deur snel en zonder schade.</div>
+                  <div class="foot flex-between"><span class="price">€85,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/woning-schoonmaak.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Schoonmaak</span><span class="badge badge-regio">📍 Hoofddorp</span></div>
+                  <h3>Woning schoonmaak</h3>
+                  <div class="desc">Grondige schoonmaak van je woning of kantoor. Per uur of vast pakket.</div>
+                  <div class="foot flex-between"><span class="price">€22,00 /uur</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/schilderijen-planken-ophangen.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Klussen</span><span class="badge badge-regio">📍 Amstelveen</span></div>
+                  <h3>Schilderijen &amp; planken ophangen</h3>
+                  <div class="desc">Ophangen van schilderijen, spiegels en planken, inclusief bevestigingsmateriaal.</div>
+                  <div class="foot flex-between"><span class="price">€35,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/meubels-in-elkaar-zetten.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Klussen</span><span class="badge badge-regio">📍 Amstelveen</span></div>
+                  <h3>Meubels in elkaar zetten</h3>
+                  <div class="desc">IKEA of ander meubel: ik zet het vakkundig in elkaar.</div>
+                  <div class="foot flex-between"><span class="price">vanaf €45,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/lamp-of-stopcontact-aansluiten.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Elektricien</span><span class="badge badge-regio">📍 Utrecht</span></div>
+                  <h3>Lamp of stopcontact aansluiten</h3>
+                  <div class="desc">Montage en aansluiten van lampen, stopcontacten en schakelaars.</div>
+                  <div class="foot flex-between"><span class="price">€65,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/groepenkast-vervangen.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Elektricien</span><span class="badge badge-regio">📍 Utrecht</span></div>
+                  <h3>Groepenkast vervangen</h3>
+                  <div class="desc">Veilige, gecertificeerde vervanging van je groepenkast incl. keuring.</div>
+                  <div class="foot flex-between"><span class="price">€550,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/cv-ketel-storing-oplossen.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">CV &amp; verwarming</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                  <h3>CV-ketel storing oplossen</h3>
+                  <div class="desc">Storing in je cv-ketel? Vandaag nog een monteur. Gecertificeerd (Gasketelwet).</div>
+                  <div class="foot flex-between"><span class="price">vanaf €95,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/verstopte-afvoer-ontstoppen.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Loodgieter</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                  <h3>Verstopte afvoer ontstoppen</h3>
+                  <div class="desc">Ontstoppen van wastafel, douche of toilet met professioneel gereedschap.</div>
+                  <div class="foot flex-between"><span class="price">€79,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+              <a class="card" href="diensten/lekkage-verhelpen.html">
+                <div class="card-body">
+                  <div class="meta"><span class="badge badge-cat">Loodgieter</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                  <h3>Lekkage verhelpen</h3>
+                  <div class="desc">Snel een lekkende kraan, leiding of afvoer gefixt. Binnen 24u ter plaatse.</div>
+                  <div class="foot flex-between"><span class="price">vanaf €89,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                </div>
+              </a>
+    </div>
+    <div class="empty" id="empty" style="display:none"><div class="big">🔍</div>Geen diensten gevonden.</div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong></div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function loadServices() {
+      const q = document.getElementById("f-q").value.trim();
+      const cat = document.getElementById("f-cat").value;
+      const regio = document.getElementById("f-regio").value;
+      const filter = { q, regio };
+      if (cat) filter.category_id = cat;
+      const services = await SF.getServices(filter);
+      const cats = await SF.getCategories();
+      const g = document.getElementById("service-grid");
+      g.innerHTML = services.length ? services.map(svc =>
+        `<a class="card" href="diensten/${slugify(svc.titel)}.html">
+           <div class="card-body">
+             <div class="meta"><span class="badge badge-cat">${esc(cats.find(c=>c.id===svc.category_id)?.naam || "Dienst")}</span><span class="badge badge-regio">📍 ${esc(svc.regio)}</span></div>
+             <h3>${esc(svc.titel)}</h3>
+             <div class="desc">${esc(svc.omschrijving || "")}</div>
+             <div class="foot flex-between"><span class="price">${prijsLabel(svc)}</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+           </div>
+         </a>`).join("")
+      : "";
+      document.getElementById("empty").style.display = services.length ? "none" : "block";
+    }
+    document.addEventListener("DOMContentLoaded", async () => {
+      // vul categorieën
+      const cats = await SF.getCategories();
+      document.getElementById("f-cat").innerHTML += cats.map(c => `<option value="${c.id}">${esc(c.icon||"")} ${esc(c.naam)}</option>`).join("");
+      // lees URL-params (van home zoekbalk)
+      const p = new URLSearchParams(location.search);
+      if (p.get("q")) document.getElementById("f-q").value = p.get("q");
+      if (p.get("regio")) document.getElementById("f-regio").value = p.get("regio");
+      if (p.get("category")) document.getElementById("f-cat").value = p.get("category");
+      await loadServices();
+    });
+  </script>
+</body>
+</html>

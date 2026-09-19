@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moetnu — De klus, direct geregeld</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta name="description" content="Moetnu verbindt klanten met betrouwbare vakmensen. Vaste diensten direct boeken, of een klus plaatsen en offertes ontvangen.">
+  <link rel="canonical" href="https://moetnu.nl/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Moetnu — De klus, direct geregeld">
+  <meta property="og:description" content="Vertel wat je nodig hebt, wij regelen een betrouwbare vakman. Zo snel mogelijk — NU, vandaag of gepland.">
+  <meta property="og:url" content="https://moetnu.nl/">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Moetnu — De klus, direct geregeld">
+  <meta name="twitter:description" content="Vertel wat je nodig hebt, wij regelen een betrouwbare vakman. Zo snel mogelijk.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://moetnu.nl/#organization",
+    "name": "Moetnu",
+    "url": "https://moetnu.nl/",
+    "logo": "https://moetnu.nl/assets/og-image.png",
+    "description": "Dienstenmarktplaats die klanten verbindt met betrouwbare vakmensen — met spoed-optie.",
+    "slogan": "De klus, direct geregeld.",
+    "sameAs": [
+      "https://github.com/benzanmontage-hue/moetnu"
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "https://moetnu.nl/#website",
+    "name": "Moetnu",
+    "url": "https://moetnu.nl/",
+    "publisher": { "@id": "https://moetnu.nl/#organization" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Wat kost het om een klus te plaatsen?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Een klus plaatsen is gratis. Je betaalt alleen wanneer je een aanbieder boekt: 25% commissie over de opdracht plus een kleine servicebijdrage van €4,95–14,95, afhankelijk van de orderwaarde." }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoe snel kan een vakman langskomen?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Je kiest zelf de snelheid: NU (binnen 60–120 minuten), Vandaag, of Plannen. Bij spoed wordt de klus direct uitgezet naar vakmensen in de buurt; de vergoeding stijgt automatisch tot iemand accepteert." }
+      },
+      {
+        "@type": "Question",
+        "name": "Zijn de vakmensen betrouwbaar en gecertificeerd?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Aanbieders kunnen hun KVK-, VCA- en vakcertificaten (zoals Gasketelwet, NEN 3140 of SCIOS) indienen. Na controle krijgen ze een 'Geverifieerd'-badge. Voor risicovol werk zoals gas en elektra is certificering verplicht." }
+      },
+      {
+        "@type": "Question",
+        "name": "Hoe werkt betalen?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Je betaalt veilig via iDEAL. Het bedrag wordt pas aan de vakman uitbetaald nadat jij akkoord geeft dat de klus is uitgevoerd." }
+      },
+      {
+        "@type": "Question",
+        "name": "Wat kost het om aanbieder te worden?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Aanmelden als aanbieder is gratis. Je betaalt alleen bij resultaat: 25% commissie per geboekte opdracht." }
+      }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+  <header id="header"></header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Wat wil je <span class="accent">geregeld</span> hebben?</h1>
+      <p class="sub">Beschrijf je klus in je eigen woorden. Wij zoeken de juiste uitvoerder — zo snel mogelijk.</p>
+
+      <form class="hero-vraag" onsubmit="doVraag(event)">
+        <textarea id="vraag-tekst" rows="2" placeholder="bv. 'Ik heb vanavond iemand nodig die mijn tv van Nijmegen naar Arnhem brengt en boven zet'"></textarea>
+        <button class="btn btn-primary" type="submit">Regel het →</button>
+      </form>
+      <p class="hero-hint">Je hoeft niet te weten wélke professional je nodig hebt. Dat doen wij.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Of blader per categorie</h2>
+      <p class="section-sub">Liever zelf kiezen? Zoek een vakman per vakgebied.</p>
+      <div class="grid grid-cats" id="cat-grid">
+          <a class="cat-card" href="diensten.html?category=1"><span class="icon">🔧</span>Loodgieter</a>
+                <a class="cat-card" href="diensten.html?category=2"><span class="icon">⚡</span>Elektricien</a>
+                <a class="cat-card" href="diensten.html?category=3"><span class="icon">🔨</span>Klussen</a>
+                <a class="cat-card" href="diensten.html?category=4"><span class="icon">🧹</span>Schoonmaak</a>
+                <a class="cat-card" href="diensten.html?category=5"><span class="icon">🌿</span>Tuin &amp; buiten</a>
+                <a class="cat-card" href="diensten.html?category=6"><span class="icon">🖌️</span>Schilder</a>
+                <a class="cat-card" href="diensten.html?category=7"><span class="icon">📦</span>Verhuizen</a>
+                <a class="cat-card" href="diensten.html?category=8"><span class="icon">💻</span>ICT &amp; tech</a>
+                <a class="cat-card" href="diensten.html?category=9"><span class="icon">🤝</span>Zorg &amp; hulp</a>
+                <a class="cat-card" href="diensten.html?category=10"><span class="icon">➕</span>Overig</a>
+                <a class="cat-card" href="diensten.html?category=11"><span class="icon">🔑</span>Slotensmid</a>
+                <a class="cat-card" href="diensten.html?category=12"><span class="icon">🔥</span>CV &amp; verwarming</a>
+                <a class="cat-card" href="diensten.html?category=13"><span class="icon">🏠</span>Dakdekker</a>
+                <a class="cat-card" href="diensten.html?category=14"><span class="icon">🐜</span>Ongediertebestrijding</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="container">
+      <div class="flex-between mb-2">
+        <h2 class="section-title">Populaire diensten</h2>
+        <a href="diensten.html" class="btn btn-ghost btn-sm">Alle diensten →</a>
+      </div>
+      <div class="grid grid-cards" id="service-grid">
+          <a class="card" href="diensten/dakinspectie.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Dakdekker</span><span class="badge badge-regio">📍 Rotterdam</span></div>
+                    <h3>Dakinspectie</h3>
+                    <div class="desc">Professionele dakinspectie met rapport en advies.</div>
+                    <div class="foot flex-between"><span class="price">€75,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/daklekkage-repareren.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Dakdekker</span><span class="badge badge-regio">📍 Rotterdam</span></div>
+                    <h3>Daklekkage repareren</h3>
+                    <div class="desc">Opsporen en repareren van daklekkages. Vrijblijvende inspectie.</div>
+                    <div class="foot flex-between"><span class="price">vanaf €150,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/cilinderslot-vervangen.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Slotensmid</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                    <h3>Cilinderslot vervangen</h3>
+                    <div class="desc">Vervanging van cilindersloten, incl. SKG-goedgekeurd slot.</div>
+                    <div class="foot flex-between"><span class="price">€120,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/buitengesloten-deur-openen.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Slotensmid</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                    <h3>Buitengesloten? Deur openen</h3>
+                    <div class="desc">Buitengesloten? Ik open je deur snel en zonder schade.</div>
+                    <div class="foot flex-between"><span class="price">€85,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/woning-schoonmaak.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Schoonmaak</span><span class="badge badge-regio">📍 Hoofddorp</span></div>
+                    <h3>Woning schoonmaak</h3>
+                    <div class="desc">Grondige schoonmaak van je woning of kantoor. Per uur of vast pakket.</div>
+                    <div class="foot flex-between"><span class="price">€22,00 /uur</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/schilderijen-planken-ophangen.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Klussen</span><span class="badge badge-regio">📍 Amstelveen</span></div>
+                    <h3>Schilderijen &amp; planken ophangen</h3>
+                    <div class="desc">Ophangen van schilderijen, spiegels en planken, inclusief bevestigingsmateriaal.</div>
+                    <div class="foot flex-between"><span class="price">€35,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/meubels-in-elkaar-zetten.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Klussen</span><span class="badge badge-regio">📍 Amstelveen</span></div>
+                    <h3>Meubels in elkaar zetten</h3>
+                    <div class="desc">IKEA of ander meubel: ik zet het vakkundig in elkaar.</div>
+                    <div class="foot flex-between"><span class="price">vanaf €45,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/lamp-of-stopcontact-aansluiten.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Elektricien</span><span class="badge badge-regio">📍 Utrecht</span></div>
+                    <h3>Lamp of stopcontact aansluiten</h3>
+                    <div class="desc">Montage en aansluiten van lampen, stopcontacten en schakelaars.</div>
+                    <div class="foot flex-between"><span class="price">€65,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/groepenkast-vervangen.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Elektricien</span><span class="badge badge-regio">📍 Utrecht</span></div>
+                    <h3>Groepenkast vervangen</h3>
+                    <div class="desc">Veilige, gecertificeerde vervanging van je groepenkast incl. keuring.</div>
+                    <div class="foot flex-between"><span class="price">€550,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/cv-ketel-storing-oplossen.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">CV &amp; verwarming</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                    <h3>CV-ketel storing oplossen</h3>
+                    <div class="desc">Storing in je cv-ketel? Vandaag nog een monteur. Gecertificeerd (Gasketelwet).</div>
+                    <div class="foot flex-between"><span class="price">vanaf €95,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/verstopte-afvoer-ontstoppen.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Loodgieter</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                    <h3>Verstopte afvoer ontstoppen</h3>
+                    <div class="desc">Ontstoppen van wastafel, douche of toilet met professioneel gereedschap.</div>
+                    <div class="foot flex-between"><span class="price">€79,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+                <a class="card" href="diensten/lekkage-verhelpen.html">
+                  <div class="card-body">
+                    <div class="meta"><span class="badge badge-cat">Loodgieter</span><span class="badge badge-regio">📍 Amsterdam</span></div>
+                    <h3>Lekkage verhelpen</h3>
+                    <div class="desc">Snel een lekkende kraan, leiding of afvoer gefixt. Binnen 24u ter plaatse.</div>
+                    <div class="foot flex-between"><span class="price">vanaf €89,00</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+                  </div>
+                </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section surface">
+    <div class="container">
+      <h2 class="section-title">Hoe het werkt</h2>
+      <p class="section-sub">Twee manieren om hulp te krijgen — of te verdienen.</p>
+      <div class="how-cards">
+        <div class="how-card">
+          <div class="n">1</div>
+          <h3>Boek een vaste dienst</h3>
+          <p>Kies een dienst met vaste prijs en boek direct. Veilig betalen via iDEAL, pas na akkoord wordt er uitbetaald.</p>
+        </div>
+        <div class="how-card">
+          <div class="n">2</div>
+          <h3>Plaats een klus</h3>
+          <p>Zet je klus online met een budget. Aanbieders reageren met offertes, jij kiest de beste.</p>
+        </div>
+        <div class="how-card">
+          <div class="n">3</div>
+          <h3>Verdien als aanbieder</h3>
+          <p>Zet je diensten online of reageer op klussen. Alleen betalen bij resultaat — 25% commissie per boeking.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dark">
+    <div class="container section-cta">
+      <h2 class="section-title">Ben jij vakman of dienstverlener?</h2>
+      <p class="section-sub">Bereik klanten bij jou in de buurt. Gratis aanmelden, alleen betalen bij resultaat.</p>
+      <a href="login.html?mode=register" class="btn btn-light">Word aanbieder</a>
+    </div>
+  </section>
+
+  <section class="section surface">
+    <div class="container">
+      <h2 class="section-title">Veelgestelde vragen</h2>
+      <p class="section-sub">Wat je wilt weten voordat je een klus plaatst of een dienst boekt.</p>
+      <div class="faq">
+        <details class="faq-item">
+          <summary class="faq-q">Wat kost het om een klus te plaatsen?</summary>
+          <div class="faq-a">Een klus plaatsen is gratis. Je betaalt alleen wanneer je een aanbieder boekt: 25% commissie over de opdracht plus een kleine servicebijdrage van €4,95–14,95, afhankelijk van de orderwaarde.</div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Hoe snel kan een vakman langskomen?</summary>
+          <div class="faq-a">Je kiest zelf de snelheid: NU (binnen 60–120 minuten), Vandaag, of Plannen. Bij spoed wordt de klus direct uitgezet naar vakmensen in de buurt; de vergoeding stijgt automatisch tot iemand accepteert.</div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Zijn de vakmensen betrouwbaar en gecertificeerd?</summary>
+          <div class="faq-a">Aanbieders kunnen hun KVK-, VCA- en vakcertificaten (zoals Gasketelwet, NEN 3140 of SCIOS) indienen. Na controle krijgen ze een 'Geverifieerd'-badge. Voor risicovol werk zoals gas en elektra is certificering verplicht.</div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Hoe werkt betalen?</summary>
+          <div class="faq-a">Je betaalt veilig via iDEAL. Het bedrag wordt pas aan de vakman uitbetaald nadat jij akkoord geeft dat de klus is uitgevoerd.</div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Wat kost het om aanbieder te worden?</summary>
+          <div class="faq-a">Aanmelden als aanbieder is gratis. Je betaalt alleen bij resultaat: 25% commissie per geboekte opdracht.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong> — De klus, direct geregeld.</div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function doVraag(e) {
+      e.preventDefault();
+      const t = document.getElementById("vraag-tekst").value.trim();
+      if (!t) { toast("Beschrijf eerst wat je nodig hebt.", "error"); return; }
+      location.href = "vraag.html?tekst=" + encodeURIComponent(t);
+    }
+    document.addEventListener("DOMContentLoaded", async () => {
+      const cats = await SF.getCategories();
+      document.getElementById("cat-grid").innerHTML = cats.map(c =>
+        `<a class="cat-card" href="diensten.html?category=${c.id}">
+           <span class="icon">${window.MoetnuIcons.iconSvg(c.slug)}</span>${esc(c.naam)}
+         </a>`).join("");
+
+      const services = (await SF.getServices()).slice(0, 8);
+      const g = document.getElementById("service-grid");
+      g.innerHTML = services.length ? services.map(svc =>
+        `<a class="card" href="diensten/${slugify(svc.titel)}.html">
+           <div class="card-body">
+             <div class="meta"><span class="badge badge-cat">${esc(cats.find(c=>c.id===svc.category_id)?.naam || "Dienst")}</span><span class="badge badge-regio">📍 ${esc(svc.regio)}</span></div>
+             <h3>${esc(svc.titel)}</h3>
+             <div class="desc">${esc(svc.omschrijving || "")}</div>
+             <div class="foot flex-between"><span class="price">${prijsLabel(svc)}</span><span class="btn btn-sm btn-dark">Bekijk</span></div>
+           </div>
+         </a>`).join("")
+      : `<div class="empty"><div class="big">🔍</div>Nog geen diensten. <a href="plaatsen.html">Plaats de eerste</a></div>`;
+    });
+  </script>
+</body>
+</html>

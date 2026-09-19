@@ -1,0 +1,12 @@
+# Bestanden die NIET naar Cloudflare Pages moeten
+supabase/
+verify.py
+verify2.py
+verify3.py
+verify4.py
+verify5.py
+README.md
+.assetsignore
+logo-concepts/
+logo_compare.png
+*.bak

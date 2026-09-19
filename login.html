@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inloggen — Moetnu</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <link rel="canonical" href="https://moetnu.nl/login.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Inloggen — Moetnu">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://moetnu.nl/login.html">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="login">
+  <header id="header"></header>
+
+  <main class="container">
+    <div class="auth-wrap">
+      <h1 id="auth-title">Inloggen</h1>
+      <p class="text-muted mb-2" id="auth-sub">Welkom terug bij Moetnu.</p>
+
+      <form class="form" id="auth-form" onsubmit="submitAuth(event)">
+        <div id="reg-fields" style="display:none">
+          <label>Voornaam</label>
+          <input type="text" id="a-voornaam" placeholder="Jan">
+          <label>Ik ben</label>
+          <select id="a-rol">
+            <option value="klant">Klant (ik zoek hulp)</option>
+            <option value="aanbieder">Aanbieder (ik bied diensten aan)</option>
+            <option value="beide">Beide</option>
+          </select>
+          <label class="check-row">
+            <input type="checkbox" id="a-toestemming" required>
+            <span>Ik ga akkoord met de <a href="voorwaarden.html">algemene voorwaarden</a> en <a href="privacy.html">privacyverklaring</a>, en geef toestemming voor verwerking van mijn gegevens (AVG).</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="a-leeftijd" required>
+            <span>Ik bevestig dat ik <strong>18 jaar of ouder</strong> ben.</span>
+          </label>
+        </div>
+        <label>E-mailadres</label>
+        <input type="email" id="a-email" required placeholder="jij@voorbeeld.nl">
+        <div id="pw-field">
+          <label>Wachtwoord</label>
+          <input type="password" id="a-password" required minlength="8" placeholder="Minimaal 8 tekens">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit" id="auth-btn">Inloggen</button>
+      </form>
+
+      <p class="auth-switch"><a href="#" id="forgot-link" onclick="showForgot(event)">Wachtwoord vergeten?</a></p>
+
+      <div class="auth-switch" id="auth-switch">
+        Nog geen account? <a href="login.html?mode=register">Maak er een aan</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong></div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const mode = qs("mode") === "register" ? "register" : "login";
+    let state = "login"; // login | register | forgot | reset
+    if (mode === "register") state = "register";
+    if (qs("reset") === "1") state = "reset";
+
+    function setMode() {
+      const reg = state === "register";
+      const forgot = state === "forgot";
+      const reset = state === "reset";
+      document.getElementById("reg-fields").style.display = reg ? "" : "none";
+      document.getElementById("pw-field").style.display = forgot ? "none" : "";
+      const consent = document.getElementById("a-toestemming");
+      consent.required = reg;
+      consent.disabled = !reg;
+      const leeftijd = document.getElementById("a-leeftijd");
+      leeftijd.required = reg;
+      leeftijd.disabled = !reg;
+
+      if (reset) {
+        document.getElementById("auth-title").textContent = "Nieuw wachtwoord instellen";
+        document.getElementById("auth-sub").textContent = "Kies een nieuw wachtwoord voor je account.";
+        document.getElementById("auth-btn").textContent = "Wachtwoord opslaan";
+        document.getElementById("pw-field").style.display = "";
+        document.getElementById("forgot-link").style.display = "none";
+        document.getElementById("auth-switch").innerHTML = `Terug naar <a href="login.html">Inloggen</a>`;
+        return;
+      }
+      if (forgot) {
+        document.getElementById("auth-title").textContent = "Wachtwoord vergeten";
+        document.getElementById("auth-sub").textContent = "Vul je e-mailadres in, dan sturen we een resetlink.";
+        document.getElementById("auth-btn").textContent = "Stuur resetlink";
+        document.getElementById("forgot-link").style.display = "none";
+        document.getElementById("auth-switch").innerHTML = `Terug naar <a href="login.html">Inloggen</a>`;
+        return;
+      }
+      document.getElementById("auth-title").textContent = reg ? "Account aanmaken" : "Inloggen";
+      document.getElementById("auth-sub").textContent = reg ? "Gratis lid worden van Moetnu." : "Welkom terug bij Moetnu.";
+      document.getElementById("auth-btn").textContent = reg ? "Account aanmaken" : "Inloggen";
+      document.getElementById("forgot-link").style.display = reg ? "none" : "";
+      document.getElementById("auth-switch").innerHTML = reg
+        ? `Al een account? <a href="login.html">Inloggen</a>`
+        : `Nog geen account? <a href="login.html?mode=register">Maak er een aan</a>`;
+    }
+    setMode();
+
+    function showForgot(e) {
+      e.preventDefault();
+      state = "forgot";
+      setMode();
+      document.getElementById("a-password").removeAttribute("required");
+    }
+
+    // E-mailbevestiging afhandelen (redirect na klik in bevestigingsmail)
+    if (qs("bevestigd") === "1") {
+      toast("E-mail bevestigd! Je kunt nu inloggen.", "success");
+    }
+
+    async function submitAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById("a-email").value.trim();
+      const pw = document.getElementById("a-password").value;
+      const btn = document.getElementById("auth-btn");
+      btn.disabled = true;
+
+      let res;
+      if (state === "forgot") {
+        if (!email) { btn.disabled = false; toast("Vul je e-mailadres in.", "error"); return; }
+        res = await SF.resetPassword(email);
+        if (!res.error) { toast("Resetlink verzonden! Controleer je inbox (ook spam).", "success"); return; }
+        btn.disabled = false;
+        toast(res.error?.message || "Er ging iets mis", "error");
+        return;
+      }
+      if (state === "reset") {
+        if (pw.length < 8) { btn.disabled = false; toast("Wachtwoord moet minimaal 8 tekens zijn.", "error"); return; }
+        res = await SF.updatePassword(pw);
+        if (!res.error) { toast("Wachtwoord bijgewerkt! Je kunt nu inloggen.", "success"); setTimeout(() => (location.href = "login.html"), 1500); return; }
+        btn.disabled = false;
+        toast(res.error?.message || "Er ging iets mis", "error");
+        return;
+      }
+      if (state === "register") {
+        const voornaam = document.getElementById("a-voornaam").value.trim() || "Gebruiker";
+        const rol = document.getElementById("a-rol").value;
+        const toestemming = document.getElementById("a-toestemming").checked;
+        const meerderjarig = document.getElementById("a-leeftijd").checked;
+        if (!meerderjarig) { btn.disabled = false; toast("Je moet 18 jaar of ouder zijn om een account aan te maken.", "error"); return; }
+        res = await SF.signUp(email, pw, voornaam, rol, toestemming, meerderjarig);
+        if (!res.error && SF.DEMO) { toast("Account aangemaakt (demo)!", "success"); goNext(); return; }
+        if (!res.error) { toast("Controleer je e-mail om te bevestigen.", "success"); setTimeout(() => (location.href = "login.html"), 1500); return; }
+      } else {
+        res = await SF.signIn(email, pw);
+        if (!res.error) { toast("Ingelogd!", "success"); goNext(); return; }
+      }
+      btn.disabled = false;
+      let msg = res.error?.message || "Er ging iets mis";
+      // NL-uitleg voor de veelvoorkomende bevestigingsfout
+      if (msg && msg.toLowerCase().includes("not confirmed")) {
+        msg = "Je e-mail is nog niet bevestigd. Controleer je inbox (ook spam) voor de bevestigingslink van Moetnu.";
+      }
+      toast(msg, "error");
+    }
+
+    function goNext() {
+      const next = qs("next");
+      setTimeout(() => (location.href = next || "dashboard.html"), 500);
+    }
+  </script>
+</body>
+</html>

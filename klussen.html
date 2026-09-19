@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klussen — Moetnu</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta name="description" content="Open klussen op Moetnu. Plaats je klus of reageer als aanbieder.">
+  <link rel="canonical" href="https://moetnu.nl/klussen.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Klussen — Moetnu">
+  <meta property="og:description" content="Open klussen op Moetnu. Plaats je klus of reageer als aanbieder.">
+  <meta property="og:url" content="https://moetnu.nl/klussen.html">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="klussen">
+  <header id="header"></header>
+
+  <main class="container page">
+    <div class="flex-between mb-2">
+      <div>
+        <h1 class="page-title">Klussen</h1>
+        <p class="page-sub">Klanten plaatsen hun klus — aanbieders reageren met een offerte.</p>
+      </div>
+      <a href="plaatsen.html?type=klus" class="btn btn-primary">Klus plaatsen</a>
+    </div>
+
+    <div class="searchbar searchbar--filter">
+      <input id="f-q" type="text" placeholder="Zoek op trefwoord...">
+      <select id="f-cat" aria-label="Categorie"><option value="">Alle categorieën</option></select>
+      <select id="f-regio" aria-label="Regio">
+        <option value="">Heel Nederland</option>
+        <option>Amsterdam</option><option>Rotterdam</option><option>Utrecht</option>
+        <option>Den Haag</option><option>Eindhoven</option><option>Groningen</option>
+        <option>Arnhem</option><option>Nijmegen</option><option>Tilburg</option>
+      </select>
+      <button class="btn btn-primary" onclick="loadJobs()">Filter</button>
+    </div>
+
+    <div id="job-list">
+        <a class="card card-stack" href="klussen/ikea-kast-in-elkaar-zetten.html">
+              <div class="card-body">
+                <div class="flex-between">
+                  <div class="meta"><span class="badge badge-cat">Klussen</span><span class="badge badge-regio">📍 Amsterdam</span><span class="badge badge-open">Open</span></div>
+                  <span class="text-muted tijd">Open</span>
+                </div>
+                <h3>IKEA-kast in elkaar zetten</h3>
+                <div class="desc">PAX kledingkast van 2 meter breed, moet zaterdag klaar.</div>
+                <div class="foot flex-between"><span class="price">€40–80</span><span class="btn btn-sm btn-dark">Reageer</span></div>
+              </div>
+            </a>
+            <a class="card card-stack" href="klussen/wespennest-verwijderen.html">
+              <div class="card-body">
+                <div class="flex-between">
+                  <div class="meta"><span class="badge badge-cat">Ongediertebestrijding</span><span class="badge badge-regio">📍 Utrecht</span><span class="badge badge-open">Open</span></div>
+                  <span class="text-muted tijd">Open</span>
+                </div>
+                <h3>Wespennest verwijderen</h3>
+                <div class="desc">Wespennest onder de dakrand. Zo snel mogelijk verwijderen.</div>
+                <div class="foot flex-between"><span class="price">€60–120</span><span class="btn btn-sm btn-dark">Reageer</span></div>
+              </div>
+            </a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong></div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function loadJobs() {
+      const q = document.getElementById("f-q").value.trim();
+      const cat = document.getElementById("f-cat").value;
+      const regio = document.getElementById("f-regio").value;
+      const filter = { q, regio };
+      if (cat) filter.category_id = cat;
+      const jobs = await SF.getJobs(filter);
+      const cats = await SF.getCategories();
+      const el = document.getElementById("job-list");
+      if (!jobs.length) {
+        el.innerHTML = '<div class="empty"><div class="big">📋</div>Geen open klussen. <a href="plaatsen.html?type=klus">Plaats de eerste</a></div>';
+        return;
+      }
+      el.innerHTML = jobs.map(j => {
+        const budget = j.budget_min || j.budget_max ? `€${j.budget_min||0}–${j.budget_max ? j.budget_max : "?"}` : "n.t.b.";
+        return `<a class="card card-stack" href="klussen/${slugify(j.titel)}.html">
+           <div class="card-body">
+             <div class="flex-between">
+               <div class="meta"><span class="badge badge-cat">${esc(cats.find(c=>c.id===j.category_id)?.naam || "Klus")}</span><span class="badge badge-regio">📍 ${esc(j.regio)}</span><span class="badge badge-open">Open</span></div>
+               <span class="text-muted tijd">${tijdAgo(j.created_at)}</span>
+             </div>
+             <h3>${esc(j.titel)}</h3>
+             <div class="desc">${esc(j.omschrijving || "")}</div>
+             <div class="foot flex-between"><span class="price">${budget}</span><span class="btn btn-sm btn-dark">Reageer</span></div>
+           </div>
+         </a>`;
+      }).join("");
+    }
+    document.addEventListener("DOMContentLoaded", async () => {
+      const cats = await SF.getCategories();
+      document.getElementById("f-cat").innerHTML += cats.map(c => `<option value="${c.id}">${esc(c.icon||"")} ${esc(c.naam)}</option>`).join("");
+      const p = new URLSearchParams(location.search);
+      if (p.get("q")) document.getElementById("f-q").value = p.get("q");
+      if (p.get("regio")) document.getElementById("f-regio").value = p.get("regio");
+      if (p.get("category")) document.getElementById("f-cat").value = p.get("category");
+      await loadJobs();
+    });
+  </script>
+</body>
+</html>

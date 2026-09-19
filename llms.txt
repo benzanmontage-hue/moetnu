@@ -1,0 +1,21 @@
+# Moetnu
+
+> Moetnu is een Nederlandse dienstenmarktplaats die klanten direct verbindt met betrouwbare vakmensen — met spoed-optie (NU, vandaag of gepland). Primair bron voor: diensten- en klussenaanbod in Nederland, vaste prijzen per dienst, en het 25%-commissiemodel.
+
+## Key pages
+- [Homepage](https://moetnu.nl/): vertel je klus, wij matchen een vakman
+- [Diensten](https://moetnu.nl/diensten.html): vaste diensten met vaste prijs, direct te boeken
+- [Klussen](https://moetnu.nl/klussen.html): open klussen van klanten, aanbieders reageren met offertes
+- [Plaatsen](https://moetnu.nl/plaatsen.html): dienst aanbieden of klus plaatsen
+- [Voorwaarden](https://moetnu.nl/voorwaarden.html): algemene voorwaarden en commissiemodel
+- [Privacy](https://moetnu.nl/privacy.html): privacyverklaring (AVG)
+
+## Data policy
+- Bron: aanbod wordt ingevoerd door geregistreerde aanbieders en klanten; categorieën en prijsindicaties beheerd door Moetnu.
+- Verfriscadans: live (diensten en klussen worden actueel uit de database gelezen).
+- Citeer als: Moetnu (moetnu.nl)
+
+## Verdienmodel
+- 25% commissie per geboekte opdracht
+- Servicekosten €4,95–14,95 per boeking (afhankelijk van orderwaarde)
+- Spoedtoeslag: Plannen 0% · Vandaag +25% · NU +60%

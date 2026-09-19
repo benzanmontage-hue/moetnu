@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jouw aanvraag — Moetnu</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta name="description" content="Moetnu categoriseert je aanvraag en vindt de juiste uitvoerder.">
+  <link rel="canonical" href="https://moetnu.nl/vraag.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Jouw aanvraag — Moetnu">
+  <meta property="og:description" content="Moetnu categoriseert je aanvraag en vindt de juiste uitvoerder.">
+  <meta property="og:url" content="https://moetnu.nl/vraag.html">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="klussen">
+  <header id="header"></header>
+
+  <main class="container page" style="max-width:760px">
+    <h1 class="page-title">We begrijpen je aanvraag</h1>
+    <p class="page-sub mb-2" id="echo-tekst"></p>
+
+    <div class="panel" id="samenvatting">
+      <div class="flex-between mb-2">
+        <span class="badge badge-cat" id="s-cat"></span>
+        <span class="badge badge-open" id="s-status">Automatisch herkend</span>
+      </div>
+      <div class="grid grid-tight grid-meta" id="s-meta"></div>
+    </div>
+
+    <div class="panel mt-2">
+      <h2>Prijsindicatie</h2>
+      <p class="text-muted side-note" id="prijs-range"></p>
+      <div class="spoed-keuze" id="spoed-keuze"></div>
+      <div class="prijs-opbouw" id="prijs-opbouw"></div>
+      <p class="hint">Dit is een indicatie. De aanbieder bepaalt zelf zijn tarief; de exacte prijs volgt uit de offertes. Servicekosten €4,95–14,95 zijn inbegrepen.</p>
+    </div>
+
+    <form class="form form-wide mt-2" id="form-klus" onsubmit="plaatsKlus(event)">
+      <h2 class="form-heading">Plaats je klus</h2>
+      <p class="text-muted side-note">We sturen je aanvraag naar geschikte uitvoerders in de buurt.</p>
+
+      <label>Titel *</label>
+      <input type="text" id="k-titel" required>
+
+      <label>Omschrijving *</label>
+      <textarea id="k-omschrijving" required></textarea>
+
+      <label>Categorie</label>
+      <select id="k-cat"></select>
+
+      <div class="form-row">
+        <div>
+          <label>Budget van (€)</label>
+          <input type="number" id="k-min" min="0" step="1">
+        </div>
+        <div>
+          <label>Budget tot (€)</label>
+          <input type="number" id="k-max" min="0" step="1">
+        </div>
+      </div>
+
+      <label>Regio *</label>
+      <input type="text" id="k-regio" required placeholder="bv. Amsterdam">
+
+      <label>Deadline (optioneel)</label>
+      <input type="date" id="k-deadline">
+
+      <button class="btn btn-primary btn-block mt-3" type="submit">Plaats klus</button>
+    </form>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong></div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/categoriseer.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let RESULT = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const tekst = qs("tekst") || "";
+      document.getElementById("echo-tekst").textContent = "“" + tekst + "”";
+      document.getElementById("k-titel").value = tekst;
+      document.getElementById("k-omschrijving").value = tekst;
+
+      // categoriseer
+      RESULT = await SF.categoriseerTekst(tekst);
+      const r = RESULT;
+
+      document.getElementById("s-cat").textContent = (r.icon || "🔧") + " " + r.category_naam;
+      document.getElementById("s-meta").innerHTML = [
+        r.locatie ? ["📍 Locatie", r.locatie] : null,
+        r.personen > 1 ? ["👥 Personen", r.personen + " personen"] : null,
+        ["⏱ Duur", r.duur],
+      ].filter(Boolean).map(([k, v]) => `<div class="stat-mini"><div class="k">${k}</div><div class="v">${esc(v)}</div></div>`).join("");
+
+      document.getElementById("prijs-range").textContent = `€${r.prijs_min} – €${r.prijs_max} (excl. spoedtoeslag)`;
+
+      // categorieën vullen + preselect
+      const cats = await SF.getCategories();
+      document.getElementById("k-cat").innerHTML = cats.map(c => `<option value="${c.id}">${esc(c.icon||"")} ${esc(c.naam)}</option>`).join("");
+      document.getElementById("k-cat").value = String(r.category_id);
+      document.getElementById("k-min").value = r.prijs_min;
+      document.getElementById("k-max").value = r.prijs_max;
+      if (r.locatie) document.getElementById("k-regio").value = r.locatie;
+
+      renderTiers();
+    });
+
+    function getTier() {
+      const r = document.querySelector('input[name=snelheid]:checked');
+      return r ? r.value : "plannen";
+    }
+
+    function renderTiers() {
+      const tiers = SF.spoedTiers;
+      const el = document.getElementById("spoed-keuze");
+      el.innerHTML = Object.keys(tiers).map(t => `
+        <label class="spoed-opt">
+          <input type="radio" name="snelheid" value="${t}" ${t === "plannen" ? "checked" : ""}>
+          <span class="spoed-l">${tiers[t].label}</span><span class="spoed-d">${tiers[t].omschrijving}</span>
+        </label>`).join("");
+      document.querySelectorAll('input[name=snelheid]').forEach(r => r.addEventListener('change', updatePrijs));
+      updatePrijs();
+    }
+
+    function updatePrijs() {
+      if (!RESULT) return;
+      const min = RESULT.prijs_min, max = RESULT.prijs_max;
+      const tier = getTier();
+      const sk = SF.serviceKosten(min);
+      const tierLabel = SF.spoedTiers[tier].label;
+      document.getElementById("prijs-opbouw").innerHTML = `
+        <div class="opbouw-row"><span>Geschatte prijs</span><span>€${min} – €${max}</span></div>
+        <div class="opbouw-row"><span>Gewenste snelheid</span><span>${tierLabel}</span></div>
+        <div class="opbouw-row"><span>Servicekosten</span><span>+€${sk.toFixed(2).replace(".", ",")}</span></div>
+        <div class="opbouw-row opbouw-totaal"><span>Totale indicatie</span><span>€${(min+sk).toFixed(2).replace(".", ",")} – €${(max+sk).toFixed(2).replace(".", ",")}</span></div>`;
+    }
+
+    async function plaatsKlus(e) {
+      e.preventDefault();
+      const user = await requireAuth();
+      if (!user) return;
+      const { data, error } = await SF.createJob({
+        poster_id: user.id,
+        category_id: document.getElementById("k-cat").value,
+        titel: document.getElementById("k-titel").value.trim(),
+        omschrijving: document.getElementById("k-omschrijving").value.trim(),
+        budget_min: document.getElementById("k-min").value || null,
+        budget_max: document.getElementById("k-max").value || null,
+        regio: document.getElementById("k-regio").value.trim(),
+        deadline: document.getElementById("k-deadline").value || null,
+      });
+      if (error) { toast(error.message || "Fout bij plaatsen klus", "error"); return; }
+      toast("Klus geplaatst! Uitvoerders worden gezocht.", "success");
+      setTimeout(() => (location.href = "klus.html?id=" + data.id), 700);
+    }
+  </script>
+</body>
+</html>

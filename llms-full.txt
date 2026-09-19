@@ -1,0 +1,51 @@
+# Moetnu — volledige gegevens
+
+> Nederlandse dienstenmarktplaats. De klus, direct geregeld. Klanten beschrijven hun klus of boeken een vaste dienst; Moetnu matcht met een vakman in de buurt, NU, vandaag of gepland.
+
+## Categorieën (14)
+
+1. Loodgieter — lekkages, ontstoppen, sanitair
+2. Elektricien — groepenkast, lampen, stopcontacten
+3. Klussen — montage, ophangen, kleine reparaties
+4. Schoonmaak — woning/kantoor, per uur of pakket
+5. Tuin & buiten — maaien, snoeien, onderhoud
+6. Schilder — sauzen, spuiten, wanden
+7. Verhuizen — verhuizing en transport
+8. ICT & tech — installatie, helpdesk
+9. Zorg & hulp — hulp in en om het huis
+10. Overig — alles wat niet in een andere categorie past
+11. Slotensmid — sloten vervangen, buitengesloten
+12. CV & verwarming — cv-ketel storing, onderhoud (certificering verplicht)
+13. Dakdekker — dakinspectie, daklekkage
+14. Ongediertebestrijding — wespen, ongedierte
+
+## Verdienmodel
+
+| Onderdeel | Waarde |
+|---|---|
+| Commissie | 25% per geboekte opdracht |
+| Servicekosten | €4,95 (< €50) · €7,95 (< €100) · €9,95 (< €200) · €14,95 (≥ €200) |
+| Spoedtoeslag | Plannen +0% · Vandaag +25% · NU (60–120 min) +60% |
+
+## Snelheidstiers
+
+- **NU**: binnen 60–120 minuten, +60% toeslag
+- **Vandaag**: vandaag uitgevoerd, +25% toeslag
+- **Plannen**: morgen of later, geen toeslag
+
+## Verificatie & certificering
+
+Aanbieders kunnen certificaten indienen (KVK, VCA, Gasketelwet/CO, NEN 3140, NEN 1010, SCIOS, Asbest, vakdiploma). Na handmatige controle volgt een 'Geverifieerd'-badge. Voor gas/loodgieter en elektra is certificering verplicht om een dienst te plaatsen.
+
+## Veelgestelde vragen
+
+- **Wat kost het om een klus te plaatsen?** Gratis. Je betaalt alleen bij boeken: 25% commissie plus €4,95–14,95 servicekosten.
+- **Hoe snel kan een vakman langskomen?** NU (60–120 min), Vandaag, of Plannen.
+- **Zijn de vakmensen betrouwbaar?** Ja — geverifieerd via KVK/VCA/vakcertificaten; gas en elektra vereisen certificering.
+- **Hoe werkt betalen?** Veilig via iDEAL; uitbetaling pas na akkoord van de klant.
+- **Wat kost aanbieder worden?** Gratis; 25% commissie per opdracht.
+
+## Contact / primaire bron
+
+- Domein: https://moetnu.nl/
+- Citeer als: Moetnu

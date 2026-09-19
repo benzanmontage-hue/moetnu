@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plaatsen — Moetnu</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:image" content="https://moetnu.nl/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://moetnu.nl/assets/og-image.png">
+  <link rel="canonical" href="https://moetnu.nl/plaatsen.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Plaatsen — Moetnu">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://moetnu.nl/plaatsen.html">
+  <meta property="og:site_name" content="Moetnu">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="plaatsen">
+  <header id="header"></header>
+
+  <main class="container page">
+    <div class="section-cta">
+      <h1 class="page-title">Plaats iets op Moetnu</h1>
+      <p class="page-sub mb-3">Kies wat je wilt doen.</p>
+    </div>
+
+    <div class="toggle-tabs">
+      <div class="tab" id="tab-dienst" onclick="switchTab('dienst')">Vaste dienst aanbieden</div>
+      <div class="tab" id="tab-klus" onclick="switchTab('klus')">Klus plaatsen</div>
+    </div>
+
+    <!-- Vaste dienst -->
+    <form class="form" id="form-dienst" onsubmit="plaatsDienst(event)">
+      <label>Categorie *</label>
+      <select id="d-cat" required onchange="updateDienstVoorbeeld()"></select>
+      <label>Titel *</label>
+      <input type="text" id="d-titel" required placeholder="bv. Lekkage verhelpen">
+      <label>Omschrijving</label>
+      <textarea id="d-omschrijving" placeholder="Wat bied je aan, wat is inbegrepen?"></textarea>
+      <div class="form-row">
+        <div>
+          <label>Prijs (€) *</label>
+          <input type="number" id="d-prijs" min="1" step="0.01" required placeholder="89">
+        </div>
+        <div>
+          <label>Prijsvorm</label>
+          <select id="d-prijstype">
+            <option value="vast">Vaste prijs</option>
+            <option value="vanaf">Vanaf</option>
+            <option value="per_uur">Per uur</option>
+          </select>
+        </div>
+      </div>
+      <label>Regio / werkgebied *</label>
+      <input type="text" id="d-regio" required placeholder="bv. Amsterdam">
+      <button class="btn btn-primary btn-block mt-3" type="submit">Dienst publiceren</button>
+    </form>
+
+    <!-- Klus -->
+    <form class="form" id="form-klus" style="display:none" onsubmit="plaatsKlus(event)">
+      <label>Categorie *</label>
+      <select id="k-cat" required onchange="updateKlusVoorbeeld()"></select>
+      <label>Titel *</label>
+      <input type="text" id="k-titel" required placeholder="bv. IKEA-kast in elkaar zetten">
+      <label>Omschrijving *</label>
+      <textarea id="k-omschrijving" required placeholder="Beschrijf de klus duidelijk..."></textarea>
+      <div class="form-row">
+        <div>
+          <label>Budget van (€)</label>
+          <input type="number" id="k-min" min="0" step="1" placeholder="40">
+        </div>
+        <div>
+          <label>Budget tot (€)</label>
+          <input type="number" id="k-max" min="0" step="1" placeholder="80">
+        </div>
+      </div>
+      <label>Regio *</label>
+      <input type="text" id="k-regio" required placeholder="bv. Amsterdam">
+      <label>Deadline (optioneel)</label>
+      <input type="date" id="k-deadline">
+      <label>Foto's (optioneel, max 6)</label>
+      <input type="file" id="k-fotos" accept="image/*" multiple>
+      <button class="btn btn-primary btn-block mt-3" type="submit">Klus plaatsen</button>
+    </form>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>Moetnu</strong></div>
+      <div><a href="diensten.html">Diensten</a> · <a href="klussen.html">Klussen</a> · <a href="plaatsen.html">Plaatsen</a> · <a href="login.html">Inloggen</a> · <a href="privacy.html">Privacy</a> · <a href="voorwaarden.html">Voorwaarden</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let currentTab = "dienst";
+
+    function switchTab(t) {
+      currentTab = t;
+      document.getElementById("tab-dienst").classList.toggle("active", t === "dienst");
+      document.getElementById("tab-klus").classList.toggle("active", t === "klus");
+      document.getElementById("form-dienst").style.display = t === "dienst" ? "" : "none";
+      document.getElementById("form-klus").style.display = t === "klus" ? "" : "none";
+    }
+
+    // ---- Voorbeeld-placeholders per categorie ----
+    const KLUS_VB = {
+      "Loodgieter": ["Lekkende kraan repareren", "De kraan in de keuken drupt en de afvoer loopt traag door."],
+      "Elektricien": ["Lampen ophangen en aansluiten", "3 designlampen ophangen in de woonkamer, inclusief dimmer."],
+      "Klussen": ["IKEA-kast in elkaar zetten", "PAX-kast van 2 meter in elkaar zetten in de slaapkamer."],
+      "Schoonmaak": ["Woning schoonmaken", "Eenmalige grondige schoonmaak van een appartement van 80 m²."],
+      "Tuin & buiten": ["Heg snoeien", "Heg van ±10 meter snoeien, inclusief afvoer van het groenafval."],
+      "Schilder": ["Woonkamer schilderen", "Muren en plafond (±40 m²) sauzen in wit, inclusief afplakken."],
+      "Verhuizen": ["Appartement verhuizen", "Verhuizing van 2e verdieping zonder lift naar een woning op 5 km."],
+      "ICT & tech": ["WiFi-netwerk instellen", "Router en 2 access points installeren voor dekking in het hele huis."],
+      "Zorg & hulp": ["Boodschappen doen", "Wekelijks boodschappen doen voor mijn oma van 84, in de buurt."],
+      "Overig": ["Gordijnen ophangen", "Beschrijf hier wat er precies moet gebeuren."],
+      "Slotensmid": ["Buitengesloten, deur openen", "Sleutel binnen vergeten, cilinderslot op de voordeur."],
+      "CV & verwarming": ["CV-ketel storing oplossen", "CV-ketel slaat steeds af en geeft storing E1."],
+      "Dakdekker": ["Daklekkage repareren", "Lekkage bij het dakraam na de laatste regenbui."],
+      "Ongediertebestrijding": ["Wespennest verwijderen", "Wespennest onder de dakrand, ongeveer 15 cm doorsnee."],
+    };
+    const DIENST_VB = {
+      "Loodgieter": ["Lekkage verhelpen", "Snel een lekkende kraan, leiding of afvoer gefixt. Binnen 24u ter plaatse."],
+      "Elektricien": ["Lamp of stopcontact aansluiten", "Montage en aansluiten van lampen, stopcontacten en schakelaars."],
+      "Klussen": ["Meubels in elkaar zetten", "IKEA of ander meubel: ik zet het vakkundig in elkaar."],
+      "Schoonmaak": ["Woning schoonmaak", "Grondige schoonmaak van je woning of kantoor. Per uur of vast pakket."],
+      "Tuin & buiten": ["Tuinonderhoud", "Snoeien, maaien en de tuin winterklaar maken."],
+      "Schilder": ["Binnenschilderwerk", "Muren, plafonds en houtwerk strak en netjes gesaust."],
+      "Verhuizen": ["Verhuisservice", "Complete verhuizing met bus en ervaren kracht."],
+      "ICT & tech": ["Computer of netwerk hulp", "Installatie, reparatie en advies voor je apparaten en netwerk."],
+      "Zorg & hulp": ["Huishoudelijke hulp", "Boodschappen, schoonmaak of gezelschap — net wat nodig is."],
+      "Overig": ["Jouw dienst", "Beschrijf hier wat je aanbiedt."],
+      "Slotensmid": ["Deur openen bij buitensluiting", "Ik open je deur snel en zonder schade."],
+      "CV & verwarming": ["CV-ketel storing oplossen", "Gecertificeerd monteur lost je storing vandaag nog op."],
+      "Dakdekker": ["Dakinspectie", "Professionele dakinspectie met rapport en advies."],
+      "Ongediertebestrijding": ["Ongedierte bestrijden", "Wespen, muizen, kakkerlakken — snel en vakkundig verholpen."],
+    };
+    let _cats = [];
+    function catNaam(select) {
+      const c = _cats.find(x => x.id == select.value);
+      return c ? c.naam : "";
+    }
+    function updateDienstVoorbeeld() {
+      const v = DIENST_VB[catNaam(document.getElementById("d-cat"))];
+      if (v) {
+        document.getElementById("d-titel").placeholder = "bv. " + v[0];
+        document.getElementById("d-omschrijving").placeholder = v[1];
+      }
+    }
+    function updateKlusVoorbeeld() {
+      const v = KLUS_VB[catNaam(document.getElementById("k-cat"))];
+      if (v) {
+        document.getElementById("k-titel").placeholder = "bv. " + v[0];
+        document.getElementById("k-omschrijving").placeholder = v[1];
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const cats = await SF.getCategories();
+      _cats = cats;
+      const opts = cats.map(c => `<option value="${c.id}">${esc(c.icon||"")} ${esc(c.naam)}</option>`).join("");
+      document.getElementById("d-cat").innerHTML = opts;
+      document.getElementById("k-cat").innerHTML = opts;
+      updateDienstVoorbeeld();
+      updateKlusVoorbeeld();
+      const t = qs("type");
+      if (t === "klus") switchTab("klus"); else switchTab("dienst");
+    });
+
+    async function plaatsDienst(e) {
+      e.preventDefault();
+      const user = await requireAuth();
+      if (!user) return;
+      const prof = await SF.getProfile(user.id);
+      const rol = prof?.rol || "klant";
+      if (rol === "klant") { toast("Schakel naar aanbieder in je dashboard om diensten te plaatsen.", "error"); return; }
+
+      // Certificering-check voor risico-categorieën (gas/elektra)
+      const catId = document.getElementById("d-cat").value;
+      const cat = (await SF.getCategories()).find(c => c.id == catId);
+      if (cat?.certificering_verplicht) {
+        const verified = await SF.isVerified(user.id);
+        if (!verified) {
+          toast("Deze categorie vereist certificering (bv. Gasketelwet, NEN 3140). Voeg je certificaten toe in je dashboard.", "error");
+          return;
+        }
+      }
+
+      const { data, error } = await SF.createService({
+        provider_id: user.id,
+        category_id: document.getElementById("d-cat").value,
+        titel: document.getElementById("d-titel").value.trim(),
+        omschrijving: document.getElementById("d-omschrijving").value.trim(),
+        prijs: document.getElementById("d-prijs").value,
+        prijs_type: document.getElementById("d-prijstype").value,
+        regio: document.getElementById("d-regio").value.trim(),
+      });
+      if (error) { toast(error.message || "Fout bij publiceren", "error"); return; }
+      toast("Dienst gepubliceerd!", "success");
+      setTimeout(() => (location.href = "dienst.html?id=" + data.id), 700);
+    }
+
+    async function plaatsKlus(e) {
+      e.preventDefault();
+      const user = await requireAuth();
+      if (!user) return;
+      // foto's uploaden
+      const fotoFiles = Array.from(document.getElementById("k-fotos").files || []).slice(0, 6);
+      const fotoUrls = [];
+      for (const f of fotoFiles) {
+        const { url, error } = await SF.uploadJobFoto(f);
+        if (!error && url) fotoUrls.push(url);
+      }
+      const { data, error } = await SF.createJob({
+        poster_id: user.id,
+        category_id: document.getElementById("k-cat").value,
+        titel: document.getElementById("k-titel").value.trim(),
+        omschrijving: document.getElementById("k-omschrijving").value.trim(),
+        budget_min: document.getElementById("k-min").value || null,
+        budget_max: document.getElementById("k-max").value || null,
+        regio: document.getElementById("k-regio").value.trim(),
+        deadline: document.getElementById("k-deadline").value || null,
+        foto_urls: fotoUrls,
+      });
+      if (error) { toast(error.message || "Fout bij plaatsen klus", "error"); return; }
+      toast("Klus geplaatst!", "success");
+      setTimeout(() => (location.href = "klus.html?id=" + data.id), 700);
+    }
+  </script>
+</body>
+</html>
