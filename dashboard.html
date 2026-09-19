@@ -17,8 +17,8 @@
   <meta property="og:url" content="https://moetnu.nl/dashboard.html">
   <meta property="og:site_name" content="Moetnu">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/fonts.css?v=20260919l">
-  <link rel="stylesheet" href="css/style.css?v=20260919l">
+  <link rel="stylesheet" href="css/fonts.css?v=20260919m">
+  <link rel="stylesheet" href="css/style.css?v=20260919m">
 </head>
 <body data-page="dashboard">
   <header id="header"></header>
@@ -90,9 +90,9 @@
     </div>
   </footer>
 
-  <script src="js/config.js?v=20260919l"></script>
-  <script src="js/db.js?v=20260919l"></script>
-  <script src="js/app.js?v=20260919l"></script>
+  <script src="js/config.js?v=20260919m"></script>
+  <script src="js/db.js?v=20260919m"></script>
+  <script src="js/app.js?v=20260919m"></script>
   <script>
     const STATUS_LABEL = {
       open: "Open", toegewezen: "Toegewezen", gesloten: "Gesloten", voltooid: "Voltooid",
@@ -358,7 +358,13 @@
       const statusLabel = { geverifieerd: "Geverifieerd", afgewezen: "Afgewezen", in_behandeling: "In behandeling" };
       const statusBadge = { geverifieerd: "badge-verified", afgewezen: "badge-pending", in_behandeling: "badge-pending" };
       document.getElementById("cert-weergave").innerHTML = `
-        <p class="mb-2">Status: ${verified ? '<span class="badge badge-verified">✓ Geverifieerd</span>' : '<span class="badge badge-pending">Nog niet geverifieerd</span>'}</p>
+        <div class="cert-status">
+          <span class="cert-status-icon">${verified ? "✓" : "⏳"}</span>
+          <div>
+            <div class="cert-status-t">${verified ? "Geverifieerd" : "Nog niet geverifieerd"}</div>
+            <div class="cert-status-s">${verified ? "Je profiel staat als betrouwbaar op het platform." : "Voeg certificaten toe om de blauwe ✓ te krijgen."}</div>
+          </div>
+        </div>
         <p class="text-muted side-note">Voor gas-, water- en elektrawerk is certificering wettelijk verplicht. Wij controleren je bewijs en zetten je profiel dan op "Geverifieerd".</p>
         <div class="mt-2">${certs.length ? certs.map(c => `
           <div class="cert-row"><div><div class="t">${esc(c.type)}</div><div class="s">${esc(c.nummer || "")}</div></div>

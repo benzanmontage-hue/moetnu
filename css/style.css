@@ -263,6 +263,16 @@ main.narrow { max-width: 800px; }
 .cookie-actions { display: flex; gap: 8px; }
 
 /* ---------- Certificaat lijst ---------- */
+.cert-status {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 62%);
+  border: 1px solid rgba(0, 113, 227, .12);
+  border-radius: 14px; padding: 16px;
+  margin-bottom: 14px;
+}
+.cert-status-icon { font-size: 26px; line-height: 1; }
+.cert-status-t { font-weight: 600; font-size: 15px; color: var(--ink); letter-spacing: -0.01em; }
+.cert-status-s { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .cert-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
 .cert-row:last-child { border-bottom: none; }
 .cert-row .t { font-weight: 500; }
@@ -417,8 +427,16 @@ main.narrow { max-width: 800px; }
 .btn-danger { background: #d70015 !important; color: #fff !important; }
 
 /* ---------- Vakgebieden & beschikbaarheid ---------- */
-.checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px; }
-.check { display: flex; align-items: center; gap: 7px; font-size: 14px; }
+.checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.check {
+  display: flex; align-items: center; gap: 8px; font-size: 14px;
+  padding: 11px 14px; border-radius: 12px; cursor: pointer;
+  background: var(--surface); border: 1px solid transparent;
+  transition: background .15s ease, border-color .15s ease;
+}
+.check:hover { background: var(--surface-2); }
+.check:has(input:checked) { background: var(--primary-soft); border-color: var(--primary); font-weight: 500; }
+.check input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; flex: none; }
 .avail-grid { display: flex; flex-direction: column; gap: 8px; }
 .avail-row { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid transparent; border-radius: 12px; padding: 8px 14px; transition: background .15s ease, border-color .15s ease; }
 .avail-row:hover { background: var(--surface-2); }
