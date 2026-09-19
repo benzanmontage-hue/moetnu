@@ -78,12 +78,19 @@ async function renderHeader(active) {
   if (!el) return;
   let user = null;
   try { user = await window.SF.currentUser(); } catch (e) {}
+  let voornaam = "";
+  if (user) {
+    try {
+      const prof = await window.SF.getProfile(user.id);
+      voornaam = (prof && prof.voornaam) || "";
+    } catch (e) {}
+  }
   const naam = window.SF.naam;
   const demoBadge = window.SF.DEMO ? '<span class="demo-badge">DEMO</span>' : "";
 
   const authHtml = user
     ? `<div class="nav-user">
-         <span class="nav-hi">Hoi, ${esc(user.voornaam || "gast")}</span>
+         <span class="nav-hi">Hoi, ${esc(voornaam || "gast")}</span>
          <a href="dashboard.html" class="btn btn-sm ${active === "dashboard" ? "active" : ""}">Dashboard</a>
          <a href="#" onclick="doLogout(event)" class="btn btn-sm btn-ghost">Uitloggen</a>
        </div>`
